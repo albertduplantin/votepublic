@@ -1,12 +1,12 @@
 // Configuration Firebase
 export const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyD7Mw4NIXAdSvjoWPC9a5V4Ph3J7sXN3k4",
-  authDomain: "votefilm-7b4a7.firebaseapp.com",
-  projectId: "votefilm-7b4a7",
-  storageBucket: "votefilm-7b4a7.firebasestorage.app",
-  messagingSenderId: "448163753822",
-  appId: "1:448163753822:web:650482b41651ee2922a9cf",
-  measurementId: "G-YJSJC8MVQL"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || ""
 };
 
 // Configuration de l'application
