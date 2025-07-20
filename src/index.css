@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles de base */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+  
+  * {
+    @apply border-gray-200;
+  }
+}
+
+/* Composants personnalisés */
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-100 text-secondary-700 px-4 py-2 rounded-lg hover:bg-secondary-200 transition-colors font-medium;
+  }
+  
+  .btn-outline {
+    @apply border border-primary-600 text-primary-600 px-4 py-2 rounded-lg hover:bg-primary-50 transition-colors font-medium;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+  
+  .star-rating {
+    @apply flex space-x-1;
+  }
+  
+  .star {
+    @apply text-2xl cursor-pointer transition-colors;
+  }
+  
+  .star-filled {
+    @apply text-yellow-400;
+  }
+  
+  .star-empty {
+    @apply text-gray-300 hover:text-yellow-400;
+  }
+}
+
+/* Animations personnalisées */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .mobile-menu {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50;
+  }
+  
+  .mobile-menu-content {
+    @apply fixed right-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300;
+  }
+  
+  .mobile-menu-open {
+    @apply translate-x-0;
+  }
+  
+  .mobile-menu-closed {
+    @apply translate-x-full;
+  }
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* Focus visible pour l'accessibilité */
+.focus-visible:focus {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+}
+
+/* États de chargement */
+.loading {
+  @apply opacity-50 pointer-events-none;
+}
+
+.loading-spinner {
+  @apply animate-spin rounded-full border-2 border-gray-300 border-t-primary-600;
+}
+
+/* Messages d'erreur et de succès */
+.error-message {
+  @apply text-red-600 text-sm mt-1;
+}
+
+.success-message {
+  @apply text-green-600 text-sm mt-1;
+}
+
+/* Grille responsive pour les films */
+.films-grid {
+  @apply grid gap-6;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .films-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Styles pour les formulaires */
+.form-group {
+  @apply mb-4;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.form-error {
+  @apply text-red-600 text-sm mt-1;
+}
+
+.form-help {
+  @apply text-gray-500 text-sm mt-1;
+}
+
+/* Styles pour les modales */
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4;
+}
+
+.modal-content {
+  @apply bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto;
+}
+
+/* Styles pour les notifications */
+.notification {
+  @apply fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm;
+}
+
+.notification-success {
+  @apply bg-green-500 text-white;
+}
+
+.notification-error {
+  @apply bg-red-500 text-white;
+}
+
+.notification-warning {
+  @apply bg-yellow-500 text-white;
+}
+
+.notification-info {
+  @apply bg-blue-500 text-white;
+} 
