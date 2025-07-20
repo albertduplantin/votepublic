@@ -1,22 +1,23 @@
 /* 🎬 Charte graphique Festival Films Courts Dinan */
 
 :root {
-  /* Couleurs principales */
-  --color-primary: #F57519; /* Orange vif du festival */
-  --color-primary-dark: #E06509;
-  --color-primary-light: #FF8A2E;
+  /* Couleurs principales du Festival Films Courts Dinan */
+  --color-primary: #FF6B00; /* Orange vif du festival (ajusté) */
+  --color-primary-dark: #E55A00;
+  --color-primary-light: #FF8533;
   
   /* Couleurs neutres */
   --color-black: #000000;
   --color-white: #FFFFFF;
-  --color-cream: #F8F6F2; /* Blanc cassé du fond */
-  --color-gray-light: #F5F5F5;
-  --color-gray: #E5E5E5;
-  --color-gray-dark: #666666;
+  --color-cream: #FDFCF8; /* Blanc cassé plus clair du fond */
+  --color-gray-light: #F8F8F8;
+  --color-gray: #E8E8E8;
+  --color-gray-dark: #4A4A4A;
   
-  /* Couleurs d'accent */
-  --color-accent-blue: #2C5AA0;
-  --color-accent-green: #4A7C59;
+  /* Couleurs d'accent du site */
+  --color-accent-blue: #1E3A8A; /* Bleu plus foncé */
+  --color-accent-green: #059669; /* Vert plus moderne */
+  --color-accent-yellow: #F59E0B; /* Jaune d'accent */
   
   /* Typographie */
   --font-primary: 'Helvetica Neue', Arial, sans-serif;
@@ -136,7 +137,7 @@
 
 /* 🎪 Bannière du festival */
 .festival-banner {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: var(--color-primary);
   color: var(--color-white);
   padding: var(--spacing-xl) 0;
   text-align: center;
@@ -168,13 +169,14 @@
   letter-spacing: 0.05em;
   transition: var(--transition-normal);
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(255, 107, 0, 0.2);
 }
 
 .btn-festival:hover {
   background-color: var(--color-primary-dark);
   border-color: var(--color-primary-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 107, 0, 0.3);
 }
 
 .btn-festival-outline {
@@ -191,17 +193,17 @@
 /* 🎭 Cartes stylisées */
 .card-festival {
   background-color: var(--color-white);
-  border: 2px solid var(--color-gray);
+  border: 1px solid var(--color-gray);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: var(--transition-normal);
 }
 
 .card-festival:hover {
   border-color: var(--color-primary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255, 107, 0, 0.15);
+  transform: translateY(-3px);
 }
 
 .card-festival-primary {
@@ -213,8 +215,8 @@
 /* 🎪 Navigation stylisée */
 .nav-festival {
   background-color: var(--color-white);
-  border-bottom: 3px solid var(--color-primary);
-  box-shadow: var(--shadow-sm);
+  border-bottom: 2px solid var(--color-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .nav-festival .nav-link {
@@ -224,12 +226,23 @@
   letter-spacing: 0.05em;
   padding: var(--spacing-md) var(--spacing-lg);
   transition: var(--transition-fast);
+  position: relative;
 }
 
 .nav-festival .nav-link:hover,
 .nav-festival .nav-link.active {
   color: var(--color-primary);
   background-color: var(--color-cream);
+}
+
+.nav-festival .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-primary);
 }
 
 /* 🎬 Grille de films stylisée */
@@ -268,8 +281,12 @@
 
 .rating-star:hover,
 .rating-star.active {
-  color: var(--color-primary);
+  color: var(--color-accent-yellow);
   transform: scale(1.1);
+}
+
+.rating-star.active {
+  filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.3));
 }
 
 /* 🎪 Footer stylisé */
