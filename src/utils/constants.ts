@@ -12,7 +12,8 @@ export const FIREBASE_CONFIG = {
 // Configuration de l'application
 export const APP_CONFIG = {
   name: "Prix du Public",
-  subtitle: "Festival du Film Court de Dinan",
+  subtitle: "Festival International de Courts Métrages Francophones",
+  edition: "8ème édition",
   version: "1.0.0",
   adminPassword: "moustache22", // Mot de passe admin par défaut
   batchDelay: 5000, // 5 secondes avant envoi du batch
@@ -68,6 +69,8 @@ export const ROUTES = {
   REGISTER: '/register',
   PROFILE: '/profile',
   RESULTS: '/results',
+  SEANCE_VOTE: '/seance/:seanceId',
+  SEANCES: '/seances',
 };
 
 // Collections Firestore
@@ -77,6 +80,7 @@ export const COLLECTIONS = {
   VOTES: 'votes',
   SETTINGS: 'settings',
   SESSIONS: 'sessions',
+  SEANCES: 'seances',
 };
 
 // Statuts de vote

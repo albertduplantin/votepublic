@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import de la charte graphique du festival */
+@import './styles/theme.css';
+
 /* Styles de base */
 @layer base {
   html {

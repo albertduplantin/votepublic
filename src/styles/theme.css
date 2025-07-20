@@ -1,0 +1,330 @@
+/* 🎬 Charte graphique Festival Films Courts Dinan */
+
+:root {
+  /* Couleurs principales */
+  --color-primary: #F57519; /* Orange vif du festival */
+  --color-primary-dark: #E06509;
+  --color-primary-light: #FF8A2E;
+  
+  /* Couleurs neutres */
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+  --color-cream: #F8F6F2; /* Blanc cassé du fond */
+  --color-gray-light: #F5F5F5;
+  --color-gray: #E5E5E5;
+  --color-gray-dark: #666666;
+  
+  /* Couleurs d'accent */
+  --color-accent-blue: #2C5AA0;
+  --color-accent-green: #4A7C59;
+  
+  /* Typographie */
+  --font-primary: 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Georgia', serif; /* Pour les titres stylisés */
+  --font-mono: 'Courier New', monospace; /* Pour les éléments techniques */
+  
+  /* Espacements */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  
+  /* Bordures */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  
+  /* Ombres */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-normal: 0.3s ease-in-out;
+  --transition-slow: 0.5s ease-in-out;
+}
+
+/* 🎨 Classes utilitaires pour la charte graphique */
+
+/* Couleurs de fond */
+.bg-primary { background-color: var(--color-primary); }
+.bg-primary-dark { background-color: var(--color-primary-dark); }
+.bg-primary-light { background-color: var(--color-primary-light); }
+.bg-cream { background-color: var(--color-cream); }
+.bg-black { background-color: var(--color-black); }
+.bg-white { background-color: var(--color-white); }
+
+/* Couleurs de texte */
+.text-primary { color: var(--color-primary); }
+.text-primary-dark { color: var(--color-primary-dark); }
+.text-black { color: var(--color-black); }
+.text-white { color: var(--color-white); }
+.text-gray-dark { color: var(--color-gray-dark); }
+
+/* Bordures */
+.border-primary { border-color: var(--color-primary); }
+.border-black { border-color: var(--color-black); }
+.border-gray { border-color: var(--color-gray); }
+
+/* Effets de survol */
+.hover-primary:hover {
+  background-color: var(--color-primary-dark);
+  transition: var(--transition-fast);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  transition: var(--transition-normal);
+}
+
+/* 🎭 Logo stylisé du festival */
+.festival-logo {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+}
+
+.festival-logo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 3px solid var(--color-black);
+  border-radius: 50%;
+}
+
+.festival-logo::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--color-primary);
+  border-radius: 50%;
+}
+
+/* 🎬 Titre stylisé du festival */
+.festival-title {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-black);
+  text-shadow: 2px 2px 0 var(--color-primary);
+}
+
+.festival-subtitle {
+  font-family: var(--font-primary);
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: var(--color-gray-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* 🎪 Bannière du festival */
+.festival-banner {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-white);
+  padding: var(--spacing-xl) 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.festival-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+  opacity: 0.3;
+}
+
+/* 🎨 Boutons stylisés */
+.btn-festival {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-family: var(--font-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: var(--transition-normal);
+  cursor: pointer;
+}
+
+.btn-festival:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-festival-outline {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.btn-festival-outline:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* 🎭 Cartes stylisées */
+.card-festival {
+  background-color: var(--color-white);
+  border: 2px solid var(--color-gray);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-normal);
+}
+
+.card-festival:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.card-festival-primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+/* 🎪 Navigation stylisée */
+.nav-festival {
+  background-color: var(--color-white);
+  border-bottom: 3px solid var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-festival .nav-link {
+  color: var(--color-black);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--spacing-md) var(--spacing-lg);
+  transition: var(--transition-fast);
+}
+
+.nav-festival .nav-link:hover,
+.nav-festival .nav-link.active {
+  color: var(--color-primary);
+  background-color: var(--color-cream);
+}
+
+/* 🎬 Grille de films stylisée */
+.films-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl) 0;
+}
+
+.film-card {
+  background-color: var(--color-white);
+  border: 2px solid var(--color-gray);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  transition: var(--transition-normal);
+}
+
+.film-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+/* 🎭 Système de notation stylisé */
+.rating-stars {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.rating-star {
+  color: var(--color-gray);
+  transition: var(--transition-fast);
+  cursor: pointer;
+}
+
+.rating-star:hover,
+.rating-star.active {
+  color: var(--color-primary);
+  transform: scale(1.1);
+}
+
+/* 🎪 Footer stylisé */
+.footer-festival {
+  background-color: var(--color-black);
+  color: var(--color-white);
+  padding: var(--spacing-2xl) 0;
+  text-align: center;
+}
+
+.footer-festival .festival-logo {
+  margin: 0 auto var(--spacing-lg);
+}
+
+/* 🎬 Responsive design */
+@media (max-width: 768px) {
+  .festival-title {
+    font-size: 2rem;
+  }
+  
+  .films-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+  }
+  
+  .festival-banner {
+    padding: var(--spacing-lg) 0;
+  }
+}
+
+/* 🎭 Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+} 

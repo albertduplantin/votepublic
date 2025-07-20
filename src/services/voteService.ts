@@ -8,6 +8,7 @@ import {
   orderBy,
   onSnapshot,
   writeBatch,
+  setDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { Vote, VoteFormData, FilmStats } from '../types';
@@ -18,6 +19,42 @@ import { generateId, generateSessionId, getUserAgent, getIpAddress } from '../ut
 let voteQueue: Vote[] = [];
 let batchTimeout: number | null = null;
 let isProcessingBatch = false;
+
+/**
+ * Ajouter un vote directement (pour les séances)
+ */
+export const addVote = async (data: {
+  filmId: string;
+  seanceId?: string;
+  note: number;
+  commentaire?: string;
+}): Promise<void> => {
+  try {
+    const vote: Vote = {
+      id: generateId(),
+      filmId: data.filmId,
+      seanceId: data.seanceId,
+      note: data.note,
+      commentaire: data.commentaire?.trim(),
+      userId: undefined,
+      userEmail: undefined,
+      userAgent: getUserAgent(),
+      ipAddress: await getIpAddress() || undefined,
+      sessionId: generateSessionId(),
+      createdAt: new Date(),
+      isAnonymous: true,
+    };
+
+    // Ajouter directement à Firestore
+    const voteRef = doc(collection(db, COLLECTIONS.VOTES));
+    await setDoc(voteRef, {
+      ...vote,
+      id: voteRef.id,
+    } as any);
+  } catch (error: any) {
+    throw new Error('Erreur lors de l\'ajout du vote');
+  }
+};
 
 /**
  * Ajouter un vote à la queue

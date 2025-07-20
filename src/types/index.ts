@@ -13,6 +13,7 @@ export interface Film {
 export interface Vote {
   id: string;
   filmId: string;
+  seanceId?: string; // ID de la séance (optionnel)
   note: number; // 1-5 étoiles
   commentaire?: string;
   userId?: string; // Optionnel pour les votes anonymes
@@ -99,4 +100,71 @@ export interface VoteBatch {
   status: 'pending' | 'sending' | 'success' | 'error';
   lastAttempt: Date;
   retryCount: number;
+}
+
+/**
+ * Interface pour une séance de films
+ */
+export interface Seance {
+  id: string;
+  nom: string;
+  description?: string;
+  date: Date;
+  heure: string;
+  films: string[]; // IDs des films
+  qrCodeUrl: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Interface pour les données de formulaire de séance
+ */
+export interface SeanceFormData {
+  nom: string;
+  description?: string;
+  date: string;
+  heure: string;
+  films: string[];
+}
+
+/**
+ * Interface pour les résultats de vote par séance
+ */
+export interface SeanceResults {
+  seanceId: string;
+  seanceNom: string;
+  films: {
+    filmId: string;
+    titre: string;
+    realisateur: string;
+    posterUrl: string;
+    moyenne: number;
+    totalVotes: number;
+    distribution: Record<number, number>;
+    commentaires: string[];
+  }[];
+  totalVotes: number;
+  dateSeance: Date;
+}
+
+/**
+ * Interface pour l'export A2
+ */
+export interface AfficheA2Data {
+  titre: string;
+  sousTitre: string;
+  seances: {
+    nom: string;
+    date: string;
+    heure: string;
+    films: {
+      titre: string;
+      realisateur: string;
+      posterUrl: string;
+    }[];
+    qrCodeUrl: string;
+  }[];
+  qrCodeGeneral: string;
+  dateFestival: string;
 } 

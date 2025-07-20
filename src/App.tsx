@@ -16,6 +16,7 @@ const LoginPage = React.lazy(() => import('./pages/LoginPage').then(module => ({
 const RegisterPage = React.lazy(() => import('./pages/RegisterPage').then(module => ({ default: module.RegisterPage })));
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage').then(module => ({ default: module.ProfilePage })));
 const ResultsPage = React.lazy(() => import('./pages/ResultsPage').then(module => ({ default: module.ResultsPage })));
+const SeanceVotePage = React.lazy(() => import('./pages/SeanceVotePage').then(module => ({ default: module.SeanceVotePage })));
 
 // Composant de chargement
 const LoadingSpinner = () => (
@@ -67,6 +68,7 @@ function App() {
                 <Route path={ROUTES.FILMS} element={<FilmsPage />} />
                 <Route path={ROUTES.VOTE} element={<VotePage />} />
                 <Route path={ROUTES.RESULTS} element={<ResultsPage />} />
+                <Route path="/seance/:seanceId" element={<SeanceVotePage />} />
                 
                 {/* Pages d'authentification */}
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
