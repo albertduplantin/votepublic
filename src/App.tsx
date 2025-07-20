@@ -29,7 +29,7 @@ const LoadingSpinner = () => (
 
 function App() {
   return (
-    <Router>
+    <Router basename="/votepublic">
       <AuthProvider>
         <div className="App">
           {/* Notifications toast */}
