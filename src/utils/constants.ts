@@ -1,12 +1,13 @@
 // Configuration Firebase
+// Note: Pour la production, les variables d'environnement sont intégrées dans le build
 export const FIREBASE_CONFIG = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "",
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "",
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "",
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: process.env.REACT_APP_FIREBASE_APP_ID || "",
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || ""
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyD7Mw4NIXAdSvjoWPC9a5V4Ph3J7sXN3k4",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "votefilm-7b4a7.firebaseapp.com",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "votefilm-7b4a7",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "votefilm-7b4a7.firebasestorage.app",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "448163753822",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:448163753822:web:650482b41651ee2922a9cf",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "G-YJSJC8MVQL"
 };
 
 // Configuration de l'application
