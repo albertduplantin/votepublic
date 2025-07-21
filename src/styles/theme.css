@@ -317,6 +317,81 @@
   }
 }
 
+/* 🍔 Menu burger mobile */
+.mobile-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--color-white);
+  border-top: 1px solid var(--color-gray);
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-menu .nav-link {
+  display: block;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-gray-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: var(--transition-fast);
+}
+
+.mobile-menu .nav-link:last-child {
+  border-bottom: none;
+}
+
+.mobile-menu .nav-link:hover {
+  background-color: var(--color-cream);
+  color: var(--color-primary);
+}
+
+.mobile-menu .btn-festival {
+  margin: var(--spacing-md) var(--spacing-lg);
+  text-align: center;
+  display: block;
+}
+
+/* Bouton burger */
+.burger-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.burger-button:hover {
+  background-color: var(--color-cream);
+  border-radius: var(--border-radius-md);
+}
+
+.burger-button svg {
+  transition: var(--transition-fast);
+}
+
+.burger-button:hover svg {
+  color: var(--color-primary);
+}
+
 /* 🎭 Animations */
 @keyframes fadeInUp {
   from {
