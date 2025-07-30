@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Film } from '../types';
-import { getAllFilms, addFilm, updateFilm, deleteFilm } from '../services/filmService';
+import { getAllFilms, createFilm as createFilmService, updateFilm, deleteFilm } from '../services/filmService';
 import toast from 'react-hot-toast';
 
 export const useFilms = () => {
@@ -26,7 +26,7 @@ export const useFilms = () => {
   // Ajouter un film
   const createFilm = async (filmData: any) => {
     try {
-      const newFilm = await addFilm(filmData);
+      const newFilm = await createFilmService(filmData);
       setFilms(prev => [...prev, newFilm]);
       toast.success('Film ajouté avec succès');
       return newFilm;

@@ -1,139 +1,74 @@
-import {
-  collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  getDoc,
-  getDocs,
-  query,
+import { db, storage } from './firebase';
+import { 
+  collection, 
+  doc, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  getDocs, 
+  getDoc, 
+  query, 
+  where, 
   orderBy,
-  where,
-  onSnapshot,
+  Timestamp,
+  writeBatch
 } from 'firebase/firestore';
-import { db } from './firebase';
-import { Seance, SeanceFormData, SeanceResults } from '../types';
-import { COLLECTIONS } from '../utils/constants';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { Seance, CreateSeanceData, Film } from '../types';
 import { generateId } from '../utils/helpers';
 
-/**
- * Générer un QR code pour une séance
- */
-export const generateQRCode = (seanceId: string): string => {
-  const baseUrl = window.location.origin + window.location.pathname;
-  const seanceUrl = `${baseUrl}seance/${seanceId}`;
-  
-  // Utiliser l'API QR Server pour générer le QR code
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(seanceUrl)}`;
-  
-  return qrCodeUrl;
-};
+const SEANCES_COLLECTION = 'seances';
+const FILMS_COLLECTION = 'films';
 
 /**
- * Ajouter une nouvelle séance
+ * Créer une nouvelle séance avec génération automatique du QR code
  */
-export const addSeance = async (data: SeanceFormData): Promise<Seance> => {
+export const createSeance = async (data: CreateSeanceData): Promise<Seance> => {
   try {
-    const seanceData: Omit<Seance, 'id' | 'qrCodeUrl' | 'createdAt' | 'updatedAt'> = {
-      nom: data.nom.trim(),
-      description: data.description?.trim(),
-      date: new Date(data.date),
+    // Vérifier qu'il y a exactement 5 films
+    if (data.films.length !== 5) {
+      throw new Error('Une séance doit contenir exactement 5 films');
+    }
+
+    // Vérifier que tous les films existent
+    const filmsPromises = data.films.map(filmId => 
+      getDoc(doc(db, FILMS_COLLECTION, filmId))
+    );
+    const filmsSnapshots = await Promise.all(filmsPromises);
+    
+    const nonExistentFilms = filmsSnapshots
+      .map((snapshot, index) => ({ snapshot, filmId: data.films[index] }))
+      .filter(({ snapshot }) => !snapshot.exists());
+    
+    if (nonExistentFilms.length > 0) {
+      throw new Error(`Films non trouvés: ${nonExistentFilms.map(f => f.filmId).join(', ')}`);
+    }
+
+    // Générer l'URL du QR code
+    const seanceId = generateId();
+    const qrCodeUrl = generateQRCodeUrl(seanceId);
+
+    const seanceData: Omit<Seance, 'id'> = {
+      nom: data.nom,
+      description: data.description,
+      date: data.date,
       heure: data.heure,
       films: data.films,
-    };
-
-    const docRef = await addDoc(collection(db, COLLECTIONS.SEANCES), seanceData);
-    const seanceId = docRef.id;
-    
-    // Générer le QR code
-    const qrCodeUrl = generateQRCode(seanceId);
-    
-    // Mettre à jour avec le QR code
-    await updateDoc(docRef, {
       qrCodeUrl,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    return {
-      id: seanceId,
-      ...seanceData,
-      qrCodeUrl,
+      isActive: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-  } catch (error: any) {
-    throw new Error('Erreur lors de l\'ajout de la séance');
-  }
-};
 
-/**
- * Mettre à jour une séance
- */
-export const updateSeance = async (
-  id: string,
-  data: Partial<SeanceFormData>
-): Promise<void> => {
-  try {
-    const seanceRef = doc(db, COLLECTIONS.SEANCES, id);
-    const seanceDoc = await getDoc(seanceRef);
-
-    if (!seanceDoc.exists()) {
-      throw new Error('Séance non trouvée');
-    }
-
-    const updateData: any = {
-      updatedAt: new Date(),
-    };
-
-    // Ajouter les champs mis à jour
-    if (data.nom) updateData.nom = data.nom.trim();
-    if (data.description !== undefined) updateData.description = data.description?.trim();
-    if (data.date) updateData.date = new Date(data.date);
-    if (data.heure) updateData.heure = data.heure;
-    if (data.films) {
-      updateData.films = data.films;
-      updateData.qrCodeUrl = generateQRCode(id);
-    }
-
-    await updateDoc(seanceRef, updateData);
-  } catch (error: any) {
-    throw new Error('Erreur lors de la mise à jour de la séance');
-  }
-};
-
-/**
- * Supprimer une séance
- */
-export const deleteSeance = async (id: string): Promise<void> => {
-  try {
-    await deleteDoc(doc(db, COLLECTIONS.SEANCES, id));
-  } catch (error: any) {
-    throw new Error('Erreur lors de la suppression de la séance');
-  }
-};
-
-/**
- * Récupérer une séance par ID
- */
-export const getSeance = async (id: string): Promise<Seance> => {
-  try {
-    const seanceDoc = await getDoc(doc(db, COLLECTIONS.SEANCES, id));
-
-    if (!seanceDoc.exists()) {
-      throw new Error('Séance non trouvée');
-    }
-
-    const seanceData = seanceDoc.data();
+    const docRef = await addDoc(collection(db, SEANCES_COLLECTION), seanceData);
+    
     return {
-      id: seanceDoc.id,
+      id: docRef.id,
       ...seanceData,
-      date: seanceData.date?.toDate() || new Date(),
-      createdAt: seanceData.createdAt?.toDate() || new Date(),
-      updatedAt: seanceData.updatedAt?.toDate() || new Date(),
-    } as Seance;
-  } catch (error: any) {
-    throw new Error('Erreur lors de la récupération de la séance');
+    };
+  } catch (error) {
+    console.error('Erreur lors de la création de la séance:', error);
+    throw error;
   }
 };
 
@@ -142,134 +77,262 @@ export const getSeance = async (id: string): Promise<Seance> => {
  */
 export const getAllSeances = async (): Promise<Seance[]> => {
   try {
-    const seancesQuery = query(
-      collection(db, COLLECTIONS.SEANCES),
-      orderBy('date', 'asc')
+    const q = query(
+      collection(db, SEANCES_COLLECTION),
+      orderBy('date', 'desc')
     );
-
-    const querySnapshot = await getDocs(seancesQuery);
+    
+    const querySnapshot = await getDocs(q);
     const seances: Seance[] = [];
-
+    
     querySnapshot.forEach((doc) => {
-      const seanceData = doc.data();
+      const data = doc.data();
       seances.push({
         id: doc.id,
-        ...seanceData,
-        date: seanceData.date?.toDate() || new Date(),
-        createdAt: seanceData.createdAt?.toDate() || new Date(),
-        updatedAt: seanceData.updatedAt?.toDate() || new Date(),
-      } as Seance);
+        nom: data.nom,
+        description: data.description,
+        date: data.date.toDate(),
+        heure: data.heure,
+        films: data.films,
+        qrCodeUrl: data.qrCodeUrl,
+        isActive: data.isActive,
+        createdAt: data.createdAt.toDate(),
+        updatedAt: data.updatedAt.toDate(),
+      });
     });
-
+    
     return seances;
-  } catch (error: any) {
-    throw new Error('Erreur lors de la récupération des séances');
+  } catch (error) {
+    console.error('Erreur lors de la récupération des séances:', error);
+    throw error;
   }
 };
 
 /**
- * Écouter les changements de la collection séances
+ * Récupérer une séance par son ID
  */
-export const onSeancesChange = (callback: (seances: Seance[]) => void) => {
-  const seancesQuery = query(
-    collection(db, COLLECTIONS.SEANCES),
-    orderBy('date', 'asc')
-  );
-
-  return onSnapshot(seancesQuery, (querySnapshot) => {
-    const seances: Seance[] = [];
-
-    querySnapshot.forEach((doc) => {
-      const seanceData = doc.data();
-      seances.push({
-        id: doc.id,
-        ...seanceData,
-        date: seanceData.date?.toDate() || new Date(),
-        createdAt: seanceData.createdAt?.toDate() || new Date(),
-        updatedAt: seanceData.updatedAt?.toDate() || new Date(),
-      } as Seance);
-    });
-
-    callback(seances);
-  });
+export const getSeanceById = async (seanceId: string): Promise<Seance | null> => {
+  try {
+    const docRef = doc(db, SEANCES_COLLECTION, seanceId);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      return {
+        id: docSnap.id,
+        nom: data.nom,
+        description: data.description,
+        date: data.date.toDate(),
+        heure: data.heure,
+        films: data.films,
+        qrCodeUrl: data.qrCodeUrl,
+        isActive: data.isActive,
+        createdAt: data.createdAt.toDate(),
+        updatedAt: data.updatedAt.toDate(),
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la séance:', error);
+    throw error;
+  }
 };
 
 /**
- * Récupérer les résultats d'une séance
+ * Récupérer une séance avec ses films
  */
-export const getSeanceResults = async (seanceId: string): Promise<SeanceResults> => {
+export const getSeanceWithFilms = async (seanceId: string): Promise<{ seance: Seance; films: Film[] } | null> => {
   try {
-    const seance = await getSeance(seanceId);
+    const seance = await getSeanceById(seanceId);
+    if (!seance) return null;
+
+    // Récupérer tous les films de la séance
+    const filmsPromises = seance.films.map(filmId => 
+      getDoc(doc(db, FILMS_COLLECTION, filmId))
+    );
+    const filmsSnapshots = await Promise.all(filmsPromises);
     
-    // Récupérer les votes pour cette séance
-    const votesQuery = query(
-      collection(db, COLLECTIONS.VOTES),
-      where('seanceId', '==', seanceId)
+    const films: Film[] = [];
+    
+    for (const snapshot of filmsSnapshots) {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        if (data) {
+          films.push({
+            id: snapshot.id,
+            titre: data.titre,
+            realisateur: data.realisateur,
+            pays: data.pays,
+            duree: data.duree,
+            annee: data.annee,
+            synopsis: data.synopsis,
+            posterUrl: data.posterUrl,
+            genre: data.genre,
+            createdAt: data.createdAt.toDate(),
+            updatedAt: data.updatedAt.toDate(),
+          });
+        }
+      }
+    }
+
+    return { seance, films };
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la séance avec films:', error);
+    throw error;
+  }
+};
+
+/**
+ * Mettre à jour une séance
+ */
+export const updateSeance = async (seanceId: string, data: Partial<CreateSeanceData>): Promise<void> => {
+  try {
+    const docRef = doc(db, SEANCES_COLLECTION, seanceId);
+    
+    const updateData: any = {
+      ...data,
+      updatedAt: new Date(),
+    };
+
+    // Si les films changent, vérifier qu'il y en a 5
+    if (data.films && data.films.length !== 5) {
+      throw new Error('Une séance doit contenir exactement 5 films');
+    }
+
+    await updateDoc(docRef, updateData);
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la séance:', error);
+    throw error;
+  }
+};
+
+/**
+ * Supprimer une séance
+ */
+export const deleteSeance = async (seanceId: string): Promise<void> => {
+  try {
+    const docRef = doc(db, SEANCES_COLLECTION, seanceId);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la séance:', error);
+    throw error;
+  }
+};
+
+/**
+ * Activer/désactiver une séance
+ */
+export const toggleSeanceActive = async (seanceId: string, isActive: boolean): Promise<void> => {
+  try {
+    const docRef = doc(db, SEANCES_COLLECTION, seanceId);
+    await updateDoc(docRef, {
+      isActive,
+      updatedAt: new Date(),
+    });
+  } catch (error) {
+    console.error('Erreur lors de la modification du statut de la séance:', error);
+    throw error;
+  }
+};
+
+/**
+ * Récupérer les séances actives
+ */
+export const getActiveSeances = async (): Promise<Seance[]> => {
+  try {
+    const q = query(
+      collection(db, SEANCES_COLLECTION),
+      where('isActive', '==', true),
+      orderBy('date', 'desc')
     );
     
-    const votesSnapshot = await getDocs(votesQuery);
-    const votes = votesSnapshot.docs.map(doc => doc.data());
+    const querySnapshot = await getDocs(q);
+    const seances: Seance[] = [];
     
-    // Calculer les statistiques par film
-    const filmStats = new Map();
-    
-    votes.forEach(vote => {
-      if (!filmStats.has(vote.filmId)) {
-        filmStats.set(vote.filmId, {
-          votes: [],
-          commentaires: [],
-        });
-      }
-      
-      filmStats.get(vote.filmId).votes.push(vote.note);
-      if (vote.commentaire) {
-        filmStats.get(vote.filmId).commentaires.push(vote.commentaire);
-      }
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      seances.push({
+        id: doc.id,
+        nom: data.nom,
+        description: data.description,
+        date: data.date.toDate(),
+        heure: data.heure,
+        films: data.films,
+        qrCodeUrl: data.qrCodeUrl,
+        isActive: data.isActive,
+        createdAt: data.createdAt.toDate(),
+        updatedAt: data.updatedAt.toDate(),
+      });
     });
     
-    // Formater les résultats
-    const films = await Promise.all(
-      seance.films.map(async (filmId) => {
-        const filmDoc = await getDoc(doc(db, COLLECTIONS.FILMS, filmId));
-        const filmData = filmDoc.data();
-        
-        const stats = filmStats.get(filmId) || { votes: [], commentaires: [] };
-        const ratings = stats.votes;
-        
-        // Calculer la moyenne
-        const moyenne = ratings.length > 0 
-          ? ratings.reduce((sum: number, rating: number) => sum + rating, 0) / ratings.length 
-          : 0;
-        
-        // Calculer la distribution
-        const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-        ratings.forEach((rating: number) => {
-          if (rating >= 1 && rating <= 5) {
-            distribution[rating]++;
-          }
-        });
-        
-        return {
-          filmId,
-          titre: filmData?.titre || 'Film inconnu',
-          realisateur: filmData?.realisateur || 'Réalisateur inconnu',
-          posterUrl: filmData?.posterUrl || '',
-          moyenne: Math.round(moyenne * 10) / 10,
-          totalVotes: ratings.length,
-          distribution,
-          commentaires: stats.commentaires,
-        };
-      })
-    );
+    return seances;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des séances actives:', error);
+    throw error;
+  }
+};
+
+/**
+ * Générer l'URL du QR code pour une séance
+ */
+export const generateQRCodeUrl = (seanceId: string): string => {
+  const baseUrl = window.location.origin;
+  const seanceUrl = `${baseUrl}/seance/${seanceId}`;
+  
+  // Utiliser un service de génération de QR code
+  const qrServiceUrl = 'https://api.qrserver.com/v1/create-qr-code/';
+  const params = new URLSearchParams({
+    size: '300x300',
+    data: seanceUrl,
+    format: 'png',
+  });
+  
+  return `${qrServiceUrl}?${params.toString()}`;
+};
+
+/**
+ * Récupérer les statistiques des séances
+ */
+export const getSeancesStats = async (): Promise<{
+  total: number;
+  actives: number;
+  inactives: number;
+  cetteSemaine: number;
+}> => {
+  try {
+    const seances = await getAllSeances();
+    const maintenant = new Date();
+    const uneSemaine = new Date(maintenant.getTime() + 7 * 24 * 60 * 60 * 1000);
     
-    return {
-      seanceId,
-      seanceNom: seance.nom,
-      films,
-      totalVotes: votes.length,
-      dateSeance: seance.date,
+    const stats = {
+      total: seances.length,
+      actives: seances.filter(s => s.isActive).length,
+      inactives: seances.filter(s => !s.isActive).length,
+      cetteSemaine: seances.filter(s => s.date >= maintenant && s.date <= uneSemaine).length,
     };
-  } catch (error: any) {
-    throw new Error('Erreur lors de la récupération des résultats');
+    
+    return stats;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des statistiques:', error);
+    throw error;
+  }
+};
+
+/**
+ * Rechercher des séances par nom
+ */
+export const searchSeances = async (searchTerm: string): Promise<Seance[]> => {
+  try {
+    const seances = await getAllSeances();
+    const term = searchTerm.toLowerCase();
+    
+    return seances.filter(seance => 
+      seance.nom.toLowerCase().includes(term) ||
+      (seance.description && seance.description.toLowerCase().includes(term))
+    );
+  } catch (error) {
+    console.error('Erreur lors de la recherche de séances:', error);
+    throw error;
   }
 }; 

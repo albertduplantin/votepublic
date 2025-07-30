@@ -65,6 +65,8 @@ export const Header: React.FC = () => {
     return user.displayName || user.email?.split('@')[0] || 'Utilisateur';
   };
 
+
+
   return (
     <header className="nav-festival">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -141,7 +143,7 @@ export const Header: React.FC = () => {
               <div className="relative ml-4">
                 <button
                   onClick={toggleUserMenu}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-black hover:text-primary hover:bg-cream transition-colors"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-black hover:text-primary hover:bg-cream transition-colors border border-gray-300 bg-white"
                 >
                   <User className="w-4 h-4" />
                   <span>{getUserDisplayName()}</span>
@@ -174,14 +176,14 @@ export const Header: React.FC = () => {
           </nav>
 
           {/* Bouton menu burger - Mobile */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center">
             <button
               onClick={toggleMenu}
-              className="burger-button"
+              className="burger-button bg-white border border-gray-300 rounded-md p-2 hover:bg-gray-50"
               aria-label="Menu"
             >
               <svg
-                className="w-6 h-6"
+                className="w-6 h-6 text-black"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -208,7 +210,7 @@ export const Header: React.FC = () => {
 
         {/* Menu mobile */}
         {isMenuOpen && (
-          <div className="md:hidden mobile-menu">
+          <div className="md:hidden mobile-menu bg-white border-t border-gray-200 shadow-lg">
             <div className="px-2 pt-2 pb-3 space-y-1">
               <Link
                 to={ROUTES.HOME}
@@ -272,15 +274,15 @@ export const Header: React.FC = () => {
               {/* Menu utilisateur - Mobile */}
               {user ? (
                 <>
-                  <div className="px-3 py-2 border-t border-gray-200 mt-2">
+                  <div className="px-3 py-3 border-t border-gray-200 mt-2 bg-gray-50">
                     <div className="text-sm text-gray-700">
-                      <div className="font-medium">{getUserDisplayName()}</div>
+                      <div className="font-medium text-black">{getUserDisplayName()}</div>
                       <div className="text-gray-500">{user.email}</div>
                     </div>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-700 hover:text-primary hover:bg-cream transition-colors"
+                    className="flex items-center w-full px-3 py-3 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors border-t border-gray-200"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Se déconnecter

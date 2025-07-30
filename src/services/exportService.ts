@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { AfficheA2Data, Seance } from '../types';
+import { Seance, AfficheA2Data } from '../types';
 import { getAllSeances } from './seanceService';
 import { getAllFilms } from './filmService';
 

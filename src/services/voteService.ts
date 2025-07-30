@@ -11,7 +11,7 @@ import {
   setDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Vote, VoteFormData, FilmStats } from '../types';
+import { Vote, VoteFormData } from '../types';
 import { COLLECTIONS } from '../utils/constants';
 import { generateId, generateSessionId, getUserAgent, getIpAddress } from '../utils/helpers';
 
@@ -33,16 +33,13 @@ export const addVote = async (data: {
     const vote: Vote = {
       id: generateId(),
       filmId: data.filmId,
-      seanceId: data.seanceId,
+      seanceId: data.seanceId || '',
       note: data.note,
       commentaire: data.commentaire?.trim(),
-      userId: undefined,
-      userEmail: undefined,
-      userAgent: getUserAgent(),
       ipAddress: await getIpAddress() || undefined,
+      userAgent: getUserAgent(),
       sessionId: generateSessionId(),
       createdAt: new Date(),
-      isAnonymous: true,
     };
 
     // Ajouter directement à Firestore
@@ -69,15 +66,13 @@ export const addVoteToQueue = async (
     const vote: Vote = {
       id: generateId(),
       filmId,
+      seanceId: '',
       note: data.note,
       commentaire: data.commentaire?.trim(),
-      userId: user?.uid,
-      userEmail: user?.email,
-      userAgent: getUserAgent(),
       ipAddress: await getIpAddress() || undefined,
+      userAgent: getUserAgent(),
       sessionId: sessionId || generateSessionId(),
       createdAt: new Date(),
-      isAnonymous: !user,
     };
 
     voteQueue.push(vote);
@@ -226,7 +221,14 @@ export const deleteVote = async (voteId: string): Promise<void> => {
 /**
  * Récupérer les statistiques d'un film
  */
-export const getFilmStats = async (filmId: string): Promise<FilmStats> => {
+export const getFilmStats = async (filmId: string): Promise<{
+  filmId: string;
+  titre: string;
+  totalVotes: number;
+  moyenneNote: number;
+  distributionNotes: Record<number, number>;
+  commentaires: string[];
+}> => {
   try {
     const votes = await getFilmVotes(filmId);
     const ratings = votes.map(vote => vote.note);
@@ -306,4 +308,81 @@ export const forceProcessBatch = async (): Promise<void> => {
     batchTimeout = null;
   }
   await processVoteBatch();
+};
+
+/**
+ * Récupérer les résultats d'une séance
+ */
+export const getSeanceResults = async (seanceId: string): Promise<{
+  seanceId: string;
+  totalVotes: number;
+  films: Array<{
+    filmId: string;
+    titre: string;
+    totalVotes: number;
+    moyenneNote: number;
+    distributionNotes: Record<number, number>;
+  }>;
+}> => {
+  try {
+    // Récupérer tous les votes de la séance
+    const votesQuery = query(
+      collection(db, COLLECTIONS.VOTES),
+      where('seanceId', '==', seanceId),
+      orderBy('createdAt', 'desc')
+    );
+
+    const querySnapshot = await getDocs(votesQuery);
+    const votes: Vote[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const voteData = doc.data();
+      votes.push({
+        ...voteData,
+        id: doc.id,
+        createdAt: voteData.createdAt?.toDate() || new Date(),
+      } as Vote);
+    });
+
+    // Grouper les votes par film
+    const filmVotes: Record<string, Vote[]> = {};
+    votes.forEach(vote => {
+      if (!filmVotes[vote.filmId]) {
+        filmVotes[vote.filmId] = [];
+      }
+      filmVotes[vote.filmId].push(vote);
+    });
+
+    // Calculer les statistiques pour chaque film
+    const films = Object.entries(filmVotes).map(([filmId, filmVotes]) => {
+      const ratings = filmVotes.map(vote => vote.note);
+      const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      
+      ratings.forEach(rating => {
+        if (rating >= 1 && rating <= 5) {
+          distribution[rating]++;
+        }
+      });
+
+      const moyenne = ratings.length > 0 
+        ? Math.round((ratings.reduce((sum, r) => sum + r, 0) / ratings.length) * 10) / 10
+        : 0;
+
+      return {
+        filmId,
+        titre: '', // Sera rempli par l'appelant
+        totalVotes: filmVotes.length,
+        moyenneNote: moyenne,
+        distributionNotes: distribution,
+      };
+    });
+
+    return {
+      seanceId,
+      totalVotes: votes.length,
+      films,
+    };
+  } catch (error: any) {
+    throw new Error('Erreur lors de la récupération des résultats de la séance');
+  }
 }; 

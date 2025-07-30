@@ -5,7 +5,8 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
 import { Star, ArrowLeft, Send, Clock, Users } from 'lucide-react';
-import { getSeance, getSeanceResults } from '../services/seanceService';
+import { getSeanceById } from '../services/seanceService';
+import { getSeanceResults } from '../services/voteService';
 import { getAllFilms } from '../services/filmService';
 import { addVote } from '../services/voteService';
 import { Seance, Film, VoteFormData } from '../types';
@@ -43,7 +44,7 @@ export const SeanceVotePage: React.FC = () => {
       try {
         setLoading(true);
         const [seanceData, filmsData, resultsData] = await Promise.all([
-          getSeance(seanceId),
+          getSeanceById(seanceId),
           getAllFilms(),
           getSeanceResults(seanceId),
         ]);

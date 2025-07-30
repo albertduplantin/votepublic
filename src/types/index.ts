@@ -1,28 +1,19 @@
-// Types pour les films
-export interface Film {
-  id: string;
-  titre: string;
-  realisateur: string;
-  synopsis: string;
-  posterUrl: string;
-  createdAt: Date;
-  updatedAt: Date;
+// Types pour l'authentification
+export interface LoginFormData {
+  email: string;
+  password: string;
 }
 
-// Types pour les votes
-export interface Vote {
-  id: string;
-  filmId: string;
-  seanceId?: string; // ID de la séance (optionnel)
-  note: number; // 1-5 étoiles
-  commentaire?: string;
-  userId?: string; // Optionnel pour les votes anonymes
-  userEmail?: string; // Optionnel pour les votes anonymes
-  userAgent: string;
-  ipAddress?: string;
-  sessionId: string; // Pour identifier les votes anonymes uniques
-  createdAt: Date;
-  isAnonymous: boolean;
+export interface RegisterFormData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
 }
 
 // Types pour l'utilisateur
@@ -35,47 +26,86 @@ export interface User {
   createdAt: Date;
 }
 
-// Types pour les statistiques
-export interface FilmStats {
+// Types pour les films
+export interface Film {
+  id: string;
+  titre: string;
+  realisateur: string;
+  pays: string;
+  duree: number; // en minutes
+  annee: number;
+  synopsis: string;
+  posterUrl?: string;
+  genre: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Types pour les séances
+export interface Seance {
+  id: string;
+  nom: string;
+  description?: string;
+  date: Date;
+  heure: string; // format "HH:MM"
+  films: string[]; // IDs des films (exactement 5 films)
+  qrCodeUrl: string; // URL du QR code généré
+  isActive: boolean; // si la séance est active pour le vote
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Types pour les votes
+export interface Vote {
+  id: string;
+  seanceId: string;
+  filmId: string;
+  note: number; // 1 à 5
+  commentaire?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  sessionId?: string;
+  createdAt: Date;
+}
+
+export interface VoteFormData {
+  filmId: string;
+  note: number;
+  commentaire?: string;
+}
+
+// Types pour les résultats
+export interface FilmResult {
   filmId: string;
   titre: string;
-  totalVotes: number;
-  moyenneNote: number;
-  distributionNotes: {
-    [key: number]: number; // note -> nombre de votes
+  realisateur: string;
+  posterUrl?: string;
+  moyenne: number;
+  nombreVotes: number;
+  distribution: {
+    '1': number;
+    '2': number;
+    '3': number;
+    '4': number;
+    '5': number;
   };
   commentaires: string[];
 }
 
-// Types pour l'authentification
-export interface AuthState {
-  user: User | null;
-  loading: boolean;
-  error: string | null;
+export interface SeanceResult {
+  seanceId: string;
+  nom: string;
+  date: Date;
+  films: FilmResult[];
+  totalVotes: number;
+  nombreVotants: number;
 }
 
-// Types pour les formulaires
-export interface LoginFormData {
-  email: string;
-  password: string;
-}
-
-export interface RegisterFormData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-export interface FilmFormData {
-  titre: string;
-  realisateur: string;
-  synopsis: string;
-  poster: File | null;
-}
-
-export interface VoteFormData {
-  note: number;
-  commentaire?: string;
+// Types pour l'export
+export interface ExportData {
+  seance: SeanceResult;
+  dateExport: Date;
+  format: 'pdf' | 'csv' | 'json';
 }
 
 // Types pour les paramètres admin
@@ -86,71 +116,44 @@ export interface AdminSettings {
   maxVotesPerUser: number; // -1 pour illimité
 }
 
-// Types pour les notifications
-export interface Notification {
-  id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  message: string;
-  duration?: number;
+// Types pour les formulaires de création
+export interface CreateFilmData {
+  titre: string;
+  realisateur: string;
+  pays: string;
+  duree: number;
+  annee: number;
+  synopsis: string;
+  genre: string;
+  poster?: File;
 }
 
-// Types pour le batch voting
-export interface VoteBatch {
-  votes: Vote[];
-  status: 'pending' | 'sending' | 'success' | 'error';
-  lastAttempt: Date;
-  retryCount: number;
-}
-
-/**
- * Interface pour une séance de films
- */
-export interface Seance {
-  id: string;
+export interface CreateSeanceData {
   nom: string;
   description?: string;
   date: Date;
   heure: string;
-  films: string[]; // IDs des films
-  qrCodeUrl: string;
-  createdAt: Date;
-  updatedAt: Date;
+  films: string[]; // IDs des 5 films
 }
 
-/**
- * Interface pour les données de formulaire de séance
- */
-export interface SeanceFormData {
-  nom: string;
-  description?: string;
-  date: string;
-  heure: string;
-  films: string[];
+// Types pour les réponses API
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }
 
-/**
- * Interface pour les résultats de vote par séance
- */
-export interface SeanceResults {
-  seanceId: string;
-  seanceNom: string;
-  films: {
-    filmId: string;
-    titre: string;
-    realisateur: string;
-    posterUrl: string;
-    moyenne: number;
-    totalVotes: number;
-    distribution: Record<number, number>;
-    commentaires: string[];
-  }[];
+// Types pour les statistiques
+export interface Statistics {
+  totalFilms: number;
+  totalSeances: number;
   totalVotes: number;
-  dateSeance: Date;
+  totalVotants: number;
+  filmsPopulaires: FilmResult[];
+  seancesPopulaires: SeanceResult[];
 }
 
-/**
- * Interface pour l'export A2
- */
+// Types pour l'export A2
 export interface AfficheA2Data {
   titre: string;
   sousTitre: string;
@@ -167,4 +170,20 @@ export interface AfficheA2Data {
   }[];
   qrCodeGeneral: string;
   dateFestival: string;
+}
+
+// Types pour les notifications
+export interface Notification {
+  id: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+  message: string;
+  duration?: number;
+}
+
+// Types pour le batch voting
+export interface VoteBatch {
+  votes: Vote[];
+  status: 'pending' | 'sending' | 'success' | 'error';
+  lastAttempt: Date;
+  retryCount: number;
 } 
