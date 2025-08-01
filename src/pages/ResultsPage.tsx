@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Award } from 'lucide-react';
 import { getAllSeances } from '../services/seanceService';
-import { getSeanceResults, getAllVotes } from '../services/voteService';
-import { getFilmById, getFilmsByIds, getAllFilms } from '../services/filmService';
+import { getAllVotes } from '../services/voteService';
+import { getAllFilms } from '../services/filmService';
 import { Seance, Vote } from '../types';
 import { Dashboard, FilmCard } from '../components/ui';
 import { useNotificationContext } from '../contexts/NotificationContext';

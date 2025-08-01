@@ -29,6 +29,8 @@ export const EditSeanceModal: React.FC<EditSeanceModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Soumission du formulaire:', formData);
+    
     if (formData.films.length !== 5) {
       toast.error('Une séance doit contenir exactement 5 films');
       return;
@@ -36,10 +38,14 @@ export const EditSeanceModal: React.FC<EditSeanceModalProps> = ({
 
     try {
       setLoading(true);
+      console.log('Appel de updateSeance avec:', seance.id, formData);
       await updateSeance(seance.id, formData);
+      console.log('Séance mise à jour avec succès');
       const updatedSeance = { ...seance, ...formData };
       onSuccess(updatedSeance);
+      toast.success('Séance mise à jour avec succès');
     } catch (error: any) {
+      console.error('Erreur lors de la mise à jour:', error);
       toast.error(error.message || 'Erreur lors de la mise à jour de la séance');
     } finally {
       setLoading(false);

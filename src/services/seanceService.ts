@@ -186,19 +186,33 @@ export const getSeanceWithFilms = async (seanceId: string): Promise<{ seance: Se
  */
 export const updateSeance = async (seanceId: string, data: Partial<CreateSeanceData>): Promise<void> => {
   try {
+    console.log('Mise à jour de la séance:', seanceId, data);
+    
     const docRef = doc(db, SEANCES_COLLECTION, seanceId);
     
     const updateData: any = {
-      ...data,
       updatedAt: new Date(),
     };
+
+    // Ajouter les champs modifiés
+    if (data.nom !== undefined) updateData.nom = data.nom;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.heure !== undefined) updateData.heure = data.heure;
+    if (data.films !== undefined) updateData.films = data.films;
+
+    // Traiter la date séparément car elle doit être un Timestamp Firestore
+    if (data.date !== undefined) {
+      updateData.date = data.date;
+    }
 
     // Si les films changent, vérifier qu'il y en a 5
     if (data.films && data.films.length !== 5) {
       throw new Error('Une séance doit contenir exactement 5 films');
     }
 
+    console.log('Données de mise à jour:', updateData);
     await updateDoc(docRef, updateData);
+    console.log('Séance mise à jour avec succès');
   } catch (error) {
     console.error('Erreur lors de la mise à jour de la séance:', error);
     throw error;
