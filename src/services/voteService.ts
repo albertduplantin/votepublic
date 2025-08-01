@@ -28,18 +28,21 @@ export const addVote = async (data: {
   seanceId?: string;
   note: number;
   commentaire?: string;
+  userId?: string;
 }): Promise<void> => {
   try {
+    const ipAddress = await getIpAddress();
     const vote: Vote = {
       id: generateId(),
       filmId: data.filmId,
       seanceId: data.seanceId || '',
       note: data.note,
-      commentaire: data.commentaire?.trim(),
-      ipAddress: await getIpAddress() || undefined,
       userAgent: getUserAgent(),
       sessionId: generateSessionId(),
       createdAt: new Date(),
+      ...(data.commentaire?.trim() && { commentaire: data.commentaire.trim() }),
+      ...(ipAddress && { ipAddress }),
+      ...(data.userId && { userId: data.userId }),
     };
 
     // Ajouter directement à Firestore
@@ -63,16 +66,18 @@ export const addVoteToQueue = async (
   sessionId?: string
 ): Promise<void> => {
   try {
+    const ipAddress = await getIpAddress();
     const vote: Vote = {
       id: generateId(),
       filmId,
       seanceId: '',
       note: data.note,
-      commentaire: data.commentaire?.trim(),
-      ipAddress: await getIpAddress() || undefined,
       userAgent: getUserAgent(),
       sessionId: sessionId || generateSessionId(),
       createdAt: new Date(),
+      ...(data.commentaire?.trim() && { commentaire: data.commentaire.trim() }),
+      ...(ipAddress && { ipAddress }),
+      ...(user?.uid && { userId: user.uid }),
     };
 
     voteQueue.push(vote);
@@ -153,6 +158,52 @@ export const checkIfUserVoted = async (
     let voteQuery;
 
     if (userId) {
+      // Utilisateur connecté - vérifier par userId
+      voteQuery = query(
+        collection(db, COLLECTIONS.VOTES),
+        where('filmId', '==', filmId),
+        where('userId', '==', userId)
+      );
+    } else if (sessionId) {
+      // Vote anonyme - vérifier par sessionId
+      voteQuery = query(
+        collection(db, COLLECTIONS.VOTES),
+        where('filmId', '==', filmId),
+        where('sessionId', '==', sessionId)
+      );
+    } else {
+      // Pas d'identifiant - vérifier par IP et UserAgent
+      const ipAddress = await getIpAddress();
+      const userAgent = getUserAgent();
+      
+      voteQuery = query(
+        collection(db, COLLECTIONS.VOTES),
+        where('filmId', '==', filmId),
+        where('ipAddress', '==', ipAddress),
+        where('userAgent', '==', userAgent)
+      );
+    }
+
+    const querySnapshot = await getDocs(voteQuery);
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error('Erreur lors de la vérification du vote:', error);
+    return false;
+  }
+};
+
+/**
+ * Récupérer le vote d'un utilisateur pour un film
+ */
+export const getUserVoteForFilm = async (
+  filmId: string,
+  userId?: string,
+  sessionId?: string
+): Promise<Vote | null> => {
+  try {
+    let voteQuery;
+
+    if (userId) {
       // Utilisateur connecté
       voteQuery = query(
         collection(db, COLLECTIONS.VOTES),
@@ -167,14 +218,33 @@ export const checkIfUserVoted = async (
         where('sessionId', '==', sessionId)
       );
     } else {
-      return false;
+      // Pas d'identifiant - vérifier par IP et UserAgent
+      const ipAddress = await getIpAddress();
+      const userAgent = getUserAgent();
+      
+      voteQuery = query(
+        collection(db, COLLECTIONS.VOTES),
+        where('filmId', '==', filmId),
+        where('ipAddress', '==', ipAddress),
+        where('userAgent', '==', userAgent)
+      );
     }
 
     const querySnapshot = await getDocs(voteQuery);
-    return !querySnapshot.empty;
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      const voteData = doc.data();
+      return {
+        ...voteData,
+        id: doc.id,
+        createdAt: voteData.createdAt?.toDate() || new Date(),
+      } as Vote;
+    }
+    
+    return null;
   } catch (error) {
-    console.error('Erreur lors de la vérification du vote:', error);
-    return false;
+    console.error('Erreur lors de la récupération du vote utilisateur:', error);
+    return null;
   }
 };
 

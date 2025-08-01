@@ -13,6 +13,8 @@ interface FilmCardProps {
   rating?: number;
   voteCount?: number;
   isFavorite?: boolean;
+  userVote?: number; // Vote de l'utilisateur actuel
+  hasVoted?: boolean; // Si l'utilisateur a déjà voté
   onVote?: (rating: number) => void;
   onFavorite?: () => void;
   onClick?: () => void;
@@ -30,13 +32,15 @@ export const FilmCard: React.FC<FilmCardProps> = ({
   rating = 0,
   voteCount = 0,
   isFavorite = false,
+  userVote,
+  hasVoted = false,
   onVote,
   onFavorite,
   onClick,
   className = ''
 }) => {
   const [hovered, setHovered] = useState(false);
-  const [localRating, setLocalRating] = useState(rating);
+  const [localRating, setLocalRating] = useState(userVote || rating);
 
   const handleStarClick = (starRating: number) => {
     setLocalRating(starRating);
@@ -163,6 +167,11 @@ export const FilmCard: React.FC<FilmCardProps> = ({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">Votre note :</span>
+            {hasVoted && (
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                ✓ Voté
+              </span>
+            )}
             {localRating > 0 && (
               <span className="text-sm text-primary-600 font-medium">
                 {localRating}/5

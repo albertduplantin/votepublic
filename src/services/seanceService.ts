@@ -1,4 +1,4 @@
-import { db, storage } from './firebase';
+import { db } from './firebase';
 import { 
   collection, 
   doc, 
@@ -9,11 +9,9 @@ import {
   getDoc, 
   query, 
   where, 
-  orderBy,
-  Timestamp,
-  writeBatch
+  orderBy
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 import { Seance, CreateSeanceData, Film } from '../types';
 import { generateId } from '../utils/helpers';
 
@@ -50,7 +48,6 @@ export const createSeance = async (data: CreateSeanceData): Promise<Seance> => {
 
     const seanceData: Omit<Seance, 'id'> = {
       nom: data.nom,
-      description: data.description,
       date: data.date,
       heure: data.heure,
       films: data.films,
@@ -58,6 +55,7 @@ export const createSeance = async (data: CreateSeanceData): Promise<Seance> => {
       isActive: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      ...(data.description && { description: data.description }),
     };
 
     const docRef = await addDoc(collection(db, SEANCES_COLLECTION), seanceData);

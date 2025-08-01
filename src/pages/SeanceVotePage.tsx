@@ -4,13 +4,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Star, ArrowLeft, Send, Clock, Users } from 'lucide-react';
 import { getSeanceById } from '../services/seanceService';
-import { getSeanceResults } from '../services/voteService';
+import { getSeanceResults, getUserVoteForFilm } from '../services/voteService';
 import { getAllFilms } from '../services/filmService';
 import { addVote } from '../services/voteService';
 import { Seance, Film } from '../types';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { ROUTES } from '../utils/constants';
+import { useAuth } from '../contexts/AuthContext';
 
 interface VoteData {
   filmId: string;
@@ -21,12 +22,14 @@ interface VoteData {
 export const SeanceVotePage: React.FC = () => {
   const { seanceId } = useParams<{ seanceId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [seance, setSeance] = useState<Seance | null>(null);
   const [films, setFilms] = useState<Film[]>([]);
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
   const [votes, setVotes] = useState<Record<string, VoteData>>({});
+  const [userVotes, setUserVotes] = useState<Record<string, number>>({});
 
   // Charger les données de la séance
   useEffect(() => {
@@ -44,6 +47,31 @@ export const SeanceVotePage: React.FC = () => {
         setSeance(seanceData);
         setFilms(filmsData);
         setResults(resultsData);
+
+        // Charger les votes existants de l'utilisateur
+        if (seanceData && user) {
+          const userVotesData: Record<string, number> = {};
+          for (const filmId of seanceData.films) {
+            try {
+              const userVote = await getUserVoteForFilm(filmId, user.uid);
+              if (userVote) {
+                userVotesData[filmId] = userVote.note;
+                // Pré-remplir les votes avec les données existantes
+                setVotes(prev => ({
+                  ...prev,
+                  [filmId]: {
+                    filmId,
+                    note: userVote.note,
+                    commentaire: userVote.commentaire
+                  }
+                }));
+              }
+            } catch (error) {
+              console.error(`Erreur lors du chargement du vote pour le film ${filmId}:`, error);
+            }
+          }
+          setUserVotes(userVotesData);
+        }
       } catch (error: any) {
         toast.error('Erreur lors du chargement de la séance');
         navigate(ROUTES.VOTE);
@@ -81,6 +109,7 @@ export const SeanceVotePage: React.FC = () => {
           filmId: vote.filmId,
           seanceId: seance.id,
           note: vote.note,
+          userId: user?.uid,
           ...(vote.commentaire !== undefined ? { commentaire: vote.commentaire } : {})
         })
       );
@@ -191,87 +220,27 @@ export const SeanceVotePage: React.FC = () => {
           {seanceFilms.map((film) => {
             const currentVote = votes[film.id];
             const filmResults = results?.films?.find((f: any) => f.filmId === film.id);
+            const userVote = userVotes[film.id];
+            const hasVoted = !!userVote;
             
             return (
-              <Card key={film.id} className="overflow-hidden">
-                {/* Poster */}
-                <div className="aspect-[2/3] bg-gray-200 overflow-hidden">
-                  {film.posterUrl ? (
-                    <img
-                      src={film.posterUrl}
-                      alt={film.titre}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <span>Aucune image</span>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Informations */}
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                    {film.titre}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    {film.realisateur}
-                  </p>
-                  
-                  {/* Système de notation */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Votre note :
-                    </label>
-                    <div className="flex space-x-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => handleVote(film.id, star, currentVote?.commentaire)}
-                          className={`p-1 rounded transition-colors ${
-                            currentVote?.note >= star
-                              ? 'text-yellow-400 hover:text-yellow-500'
-                              : 'text-gray-300 hover:text-yellow-400'
-                          }`}
-                        >
-                          <Star className="h-6 w-6 fill-current" />
-                        </button>
-                      ))}
-                    </div>
-                    {currentVote?.note && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        Note : {currentVote.note}/5
-                      </p>
-                    )}
-                  </div>
-                  
-                  {/* Commentaire */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Commentaire (optionnel) :
-                    </label>
-                    <textarea
-                      value={currentVote?.commentaire || ''}
-                      onChange={(e) => handleVote(film.id, currentVote?.note || 0, e.target.value)}
-                      placeholder="Votre avis sur ce film..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      rows={3}
-                      maxLength={500}
-                    />
-                  </div>
-                  
-                  {/* Statistiques (si disponibles) */}
-                  {filmResults && (
-                    <div className="border-t pt-4">
-                      <div className="flex items-center justify-between text-sm text-gray-600">
-                        <span>Moyenne : {filmResults.moyenne}/5</span>
-                        <span>{filmResults.totalVotes} vote{filmResults.totalVotes > 1 ? 's' : ''}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Card>
+              <FilmCard
+                key={film.id}
+                id={film.id}
+                title={film.titre}
+                director={film.realisateur}
+                duration={film.duree}
+                year={film.annee}
+                country={film.pays}
+                synopsis={film.synopsis}
+                posterUrl={film.posterUrl}
+                rating={filmResults?.moyenneNote || 0}
+                voteCount={filmResults?.totalVotes || 0}
+                userVote={userVote}
+                hasVoted={hasVoted}
+                onVote={(note) => handleVote(film.id, note)}
+                className="h-full"
+              />
             );
           })}
         </div>

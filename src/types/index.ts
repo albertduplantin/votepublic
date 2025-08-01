@@ -65,6 +65,7 @@ export interface Vote {
   ipAddress?: string;
   userAgent?: string;
   sessionId?: string;
+  userId?: string; // ID de l'utilisateur connecté
   createdAt: Date;
 }
 

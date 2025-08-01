@@ -1,4 +1,4 @@
-import { db, storage } from './firebase';
+import { db } from './firebase';
 import { 
   collection, 
   doc, 
@@ -38,10 +38,10 @@ export const createFilm = async (data: CreateFilmData): Promise<Film> => {
       duree: data.duree,
       annee: data.annee,
       synopsis: data.synopsis,
-      posterUrl,
       genre: data.genre,
       createdAt: new Date(),
       updatedAt: new Date(),
+      ...(posterUrl && { posterUrl }),
     };
 
     const docRef = await addDoc(collection(db, FILMS_COLLECTION), filmData);
@@ -173,6 +173,7 @@ export const deleteFilm = async (filmId: string): Promise<void> => {
  */
 export const uploadPoster = async (file: File): Promise<string> => {
   try {
+    const { storage } = await import('./firebase');
     const fileName = `${generateId()}_${file.name}`;
     const storageRef = ref(storage, `${POSTERS_FOLDER}/${fileName}`);
     
@@ -191,6 +192,7 @@ export const uploadPoster = async (file: File): Promise<string> => {
  */
 export const deletePoster = async (posterUrl: string): Promise<void> => {
   try {
+    const { storage } = await import('./firebase');
     const storageRef = ref(storage, posterUrl);
     await deleteObject(storageRef);
   } catch (error) {

@@ -97,6 +97,7 @@ export class ErrorHandler {
   /**
    * Envoyer l'erreur à un service de monitoring (ex: Sentry)
    */
+  // @ts-ignore
   private sendToMonitoring(error: AppError): void {
     // TODO: Implémenter l'envoi vers un service de monitoring
     // Exemple avec Sentry:
