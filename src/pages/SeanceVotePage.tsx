@@ -10,6 +10,7 @@ import { addVote } from '../services/voteService';
 import { Seance, Film } from '../types';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { FilmCard } from '../components/ui/FilmCard';
 import { ROUTES } from '../utils/constants';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -62,7 +63,7 @@ export const SeanceVotePage: React.FC = () => {
                   [filmId]: {
                     filmId,
                     note: userVote.note,
-                    commentaire: userVote.commentaire
+                    ...(userVote.commentaire && { commentaire: userVote.commentaire })
                   }
                 }));
               }
@@ -109,7 +110,7 @@ export const SeanceVotePage: React.FC = () => {
           filmId: vote.filmId,
           seanceId: seance.id,
           note: vote.note,
-          userId: user?.uid,
+          ...(user?.uid && { userId: user.uid }),
           ...(vote.commentaire !== undefined ? { commentaire: vote.commentaire } : {})
         })
       );
@@ -218,7 +219,6 @@ export const SeanceVotePage: React.FC = () => {
         {/* Films à voter */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {seanceFilms.map((film) => {
-            const currentVote = votes[film.id];
             const filmResults = results?.films?.find((f: any) => f.filmId === film.id);
             const userVote = userVotes[film.id];
             const hasVoted = !!userVote;
@@ -233,13 +233,13 @@ export const SeanceVotePage: React.FC = () => {
                 year={film.annee}
                 country={film.pays}
                 synopsis={film.synopsis}
-                posterUrl={film.posterUrl}
                 rating={filmResults?.moyenneNote || 0}
                 voteCount={filmResults?.totalVotes || 0}
                 userVote={userVote}
                 hasVoted={hasVoted}
                 onVote={(note) => handleVote(film.id, note)}
                 className="h-full"
+                {...(film.posterUrl && { posterUrl: film.posterUrl })}
               />
             );
           })}

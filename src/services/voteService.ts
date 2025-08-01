@@ -381,24 +381,12 @@ export const forceProcessBatch = async (): Promise<void> => {
 };
 
 /**
- * Récupérer les résultats d'une séance
+ * Récupérer tous les votes (pour les résultats globaux)
  */
-export const getSeanceResults = async (seanceId: string): Promise<{
-  seanceId: string;
-  totalVotes: number;
-  films: Array<{
-    filmId: string;
-    titre: string;
-    totalVotes: number;
-    moyenneNote: number;
-    distributionNotes: Record<number, number>;
-  }>;
-}> => {
+export const getAllVotes = async (): Promise<Vote[]> => {
   try {
-    // Récupérer tous les votes de la séance
     const votesQuery = query(
       collection(db, COLLECTIONS.VOTES),
-      where('seanceId', '==', seanceId),
       orderBy('createdAt', 'desc')
     );
 
@@ -414,14 +402,62 @@ export const getSeanceResults = async (seanceId: string): Promise<{
       } as Vote);
     });
 
-    // Grouper les votes par film
+    return votes;
+  } catch (error: any) {
+    console.error('Erreur lors de la récupération de tous les votes:', error);
+    throw new Error('Erreur lors de la récupération des votes');
+  }
+};
+
+/**
+ * Récupérer les résultats d'une séance
+ */
+export const getSeanceResults = async (seanceId: string): Promise<{
+  seanceId: string;
+  totalVotes: number;
+  films: Array<{
+    filmId: string;
+    titre: string;
+    totalVotes: number;
+    moyenneNote: number;
+    distributionNotes: Record<number, number>;
+  }>;
+}> => {
+  try {
+    console.log(`Recherche des votes pour la séance: ${seanceId}`);
+    
+    // Récupérer tous les votes (sans filtre par séance pour l'instant)
+    const votesQuery = query(
+      collection(db, COLLECTIONS.VOTES),
+      orderBy('createdAt', 'desc')
+    );
+
+    const querySnapshot = await getDocs(votesQuery);
+    const votes: Vote[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const voteData = doc.data();
+      votes.push({
+        ...voteData,
+        id: doc.id,
+        createdAt: voteData.createdAt?.toDate() || new Date(),
+      } as Vote);
+    });
+
+    console.log(`Total des votes trouvés: ${votes.length}`);
+    console.log('Votes:', votes.map(v => ({ filmId: v.filmId, seanceId: v.seanceId, note: v.note })));
+
+    // Grouper les votes par film (pour cette séance)
     const filmVotes: Record<string, Vote[]> = {};
     votes.forEach(vote => {
+      // Inclure tous les votes pour les films de cette séance, même sans seanceId
       if (!filmVotes[vote.filmId]) {
         filmVotes[vote.filmId] = [];
       }
       filmVotes[vote.filmId].push(vote);
     });
+
+    console.log(`Films avec votes: ${Object.keys(filmVotes).length}`);
 
     // Calculer les statistiques pour chaque film
     const films = Object.entries(filmVotes).map(([filmId, filmVotes]) => {
@@ -447,12 +483,16 @@ export const getSeanceResults = async (seanceId: string): Promise<{
       };
     });
 
+    const totalVotes = votes.length;
+    console.log(`Résultats pour séance ${seanceId}: ${totalVotes} votes, ${films.length} films`);
+
     return {
       seanceId,
-      totalVotes: votes.length,
+      totalVotes,
       films,
     };
   } catch (error: any) {
+    console.error('Erreur détaillée dans getSeanceResults:', error);
     throw new Error('Erreur lors de la récupération des résultats de la séance');
   }
 }; 

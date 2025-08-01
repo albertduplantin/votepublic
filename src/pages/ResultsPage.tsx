@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Award } from 'lucide-react';
 import { getAllSeances } from '../services/seanceService';
-import { getSeanceResults } from '../services/voteService';
-import { getFilmById, getFilmsByIds } from '../services/filmService';
-import { Seance } from '../types';
+import { getSeanceResults, getAllVotes } from '../services/voteService';
+import { getFilmById, getFilmsByIds, getAllFilms } from '../services/filmService';
+import { Seance, Vote } from '../types';
 import { Dashboard, FilmCard } from '../components/ui';
 import { useNotificationContext } from '../contexts/NotificationContext';
 
@@ -45,80 +45,59 @@ export const ResultsPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      // Charger toutes les séances
-      const allSeances = await getAllSeances();
+      console.log('Début du chargement des résultats...');
+
+      // Charger toutes les séances et tous les films
+      const [allSeances, allFilms, allVotes] = await Promise.all([
+        getAllSeances(),
+        getAllFilms(),
+        getAllVotes()
+      ]);
+
+      console.log(`Séances trouvées: ${allSeances.length}`);
+      console.log(`Films trouvés: ${allFilms.length}`);
+      console.log(`Votes trouvés: ${allVotes.length}`);
+
       setSeances(allSeances);
 
-      // Charger les résultats pour chaque séance
-      const seanceResults: SeanceResult[] = [];
-      const allFilmsMap = new Map<string, { votes: number; totalRating: number; count: number }>();
+      // Créer un map des films pour un accès rapide
+      const filmsMap = new Map(allFilms.map(film => [film.id, film]));
 
-      for (const seance of allSeances) {
-        try {
-          const seanceResult = await getSeanceResults(seance.id);
-          
-          // Récupérer les détails des films en batch
-          const filmIds = seanceResult.films.map(f => f.filmId);
-          const films = await getFilmsByIds(filmIds);
-          const filmsMap = new Map(films.map(film => [film.id, film]));
-          
-          const filmsWithDetails: FilmResult[] = seanceResult.films.map((filmResult) => {
-            const film = filmsMap.get(filmResult.filmId);
-            const filmDetails = {
-              titre: film?.titre || `Film ${filmResult.filmId.slice(0, 8)}`,
-              realisateur: film?.realisateur || 'Réalisateur inconnu',
-              posterUrl: film?.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300&h=450&fit=crop',
-            };
-
-            // Ajouter aux statistiques globales
-            if (!allFilmsMap.has(filmResult.filmId)) {
-              allFilmsMap.set(filmResult.filmId, { votes: 0, totalRating: 0, count: 0 });
-            }
-            const globalStats = allFilmsMap.get(filmResult.filmId)!;
-            globalStats.votes += filmResult.totalVotes;
-            globalStats.totalRating += filmResult.moyenneNote * filmResult.totalVotes;
-            globalStats.count += 1;
-
-            return {
-              ...filmResult,
-              ...filmDetails,
-              position: 0, // Sera calculé plus tard
-            };
-          });
-
-          // Trier et positionner les films
-          const sortedFilms = filmsWithDetails.sort((a, b) => b.moyenneNote - a.moyenneNote);
-          sortedFilms.forEach((film, index) => {
-            film.position = index + 1;
-          });
-
-          seanceResults.push({
-            seance,
-            films: sortedFilms,
-            totalVotes: seanceResult.totalVotes,
-            participationRate: Math.round((seanceResult.totalVotes / 50) * 100), // Estimation
-          });
-        } catch (error) {
-          console.error(`Erreur pour la séance ${seance.id}:`, error);
-          showError('Erreur de chargement', `Impossible de charger les résultats pour la séance ${seance.nom}`);
+      // Calculer les statistiques globales par film
+      const filmStats = new Map<string, { votes: Vote[]; totalRating: number; count: number }>();
+      
+      allVotes.forEach(vote => {
+        if (!filmStats.has(vote.filmId)) {
+          filmStats.set(vote.filmId, { votes: [], totalRating: 0, count: 0 });
         }
-      }
+        const stats = filmStats.get(vote.filmId)!;
+        stats.votes.push(vote);
+        stats.totalRating += vote.note;
+        stats.count += 1;
+      });
 
-      setResults(seanceResults);
+      console.log(`Films avec votes: ${filmStats.size}`);
 
-      // Calculer les résultats globaux
+      // Créer les résultats globaux
       const globalFilms: FilmResult[] = [];
-      for (const [filmId, stats] of allFilmsMap) {
-        const film = await getFilmById(filmId);
-        if (film) {
+      for (const [filmId, stats] of filmStats) {
+        const film = filmsMap.get(filmId);
+        if (film && stats.count > 0) {
+          const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+          stats.votes.forEach(vote => {
+            if (vote.note >= 1 && vote.note <= 5) {
+              distribution[vote.note]++;
+            }
+          });
+
           globalFilms.push({
             filmId,
             titre: film.titre,
             realisateur: film.realisateur,
             posterUrl: film.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300&h=450&fit=crop',
-            totalVotes: stats.votes,
-            moyenneNote: stats.totalRating / stats.votes,
-            distributionNotes: {},
+            totalVotes: stats.count,
+            moyenneNote: Math.round((stats.totalRating / stats.count) * 10) / 10,
+            distributionNotes: distribution,
             position: 0,
           });
         }
@@ -131,6 +110,57 @@ export const ResultsPage: React.FC = () => {
       });
 
       setGlobalResults(sortedGlobalFilms);
+
+      // Calculer les résultats par séance
+      const seanceResults: SeanceResult[] = [];
+      for (const seance of allSeances) {
+        const seanceFilms: FilmResult[] = [];
+        
+        // Pour chaque film de la séance, récupérer ses statistiques
+        for (const filmId of seance.films) {
+          const stats = filmStats.get(filmId);
+          const film = filmsMap.get(filmId);
+          
+          if (stats && film && stats.count > 0) {
+            const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            stats.votes.forEach(vote => {
+              if (vote.note >= 1 && vote.note <= 5) {
+                distribution[vote.note]++;
+              }
+            });
+
+            seanceFilms.push({
+              filmId,
+              titre: film.titre,
+              realisateur: film.realisateur,
+              posterUrl: film.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300&h=450&fit=crop',
+              totalVotes: stats.count,
+              moyenneNote: Math.round((stats.totalRating / stats.count) * 10) / 10,
+              distributionNotes: distribution,
+              position: 0,
+            });
+          }
+        }
+
+        // Trier et positionner les films de la séance
+        const sortedSeanceFilms = seanceFilms.sort((a, b) => b.moyenneNote - a.moyenneNote);
+        sortedSeanceFilms.forEach((film, index) => {
+          film.position = index + 1;
+        });
+
+        const totalSeanceVotes = sortedSeanceFilms.reduce((sum, film) => sum + film.totalVotes, 0);
+
+        seanceResults.push({
+          seance,
+          films: sortedSeanceFilms,
+          totalVotes: totalSeanceVotes,
+          participationRate: Math.round((totalSeanceVotes / 50) * 100), // Estimation
+        });
+      }
+
+      setResults(seanceResults);
+
+      console.log('Résultats chargés avec succès');
       showSuccess('Résultats chargés', 'Les résultats ont été mis à jour avec succès');
 
     } catch (error) {
