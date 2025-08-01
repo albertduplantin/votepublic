@@ -50,7 +50,6 @@ export const registerWithEmail = async (data: RegisterFormData): Promise<User> =
     const userData: Omit<User, 'uid'> = {
       email: data.email,
       displayName: data.email.split('@')[0],
-      photoURL: undefined,
       isAdmin: false,
       createdAt: new Date(),
     };
@@ -82,7 +81,7 @@ export const loginWithGoogle = async (): Promise<User> => {
       const userData: Omit<User, 'uid'> = {
         email: user.email!,
         displayName: user.displayName || user.email!.split('@')[0],
-        photoURL: user.photoURL || undefined,
+        ...(user.photoURL ? { photoURL: user.photoURL } : {}),
         isAdmin: false,
         createdAt: new Date(),
       };
@@ -135,8 +134,8 @@ export const updateUserProfile = async (
     // Mettre à jour Firebase Auth si nécessaire
     if (auth.currentUser && auth.currentUser.uid === uid) {
       await updateProfile(auth.currentUser, {
-        displayName: updates.displayName,
-        photoURL: updates.photoURL,
+        displayName: updates.displayName ?? null,
+        photoURL: updates.photoURL ?? null,
       });
     }
 

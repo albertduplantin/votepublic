@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { Seance, AfficheA2Data } from '../types';
+import { AfficheA2Data } from '../types';
 import { getAllSeances } from './seanceService';
 import { getAllFilms } from './filmService';
 
@@ -111,7 +111,7 @@ export const generateAfficheA2 = async (): Promise<Blob> => {
     yPosition += 20;
     
     // Séances
-    afficheData.seances.forEach((seance, index) => {
+    afficheData.seances.forEach((seance, _) => {
       if (yPosition > pageHeight - 100) {
         pdf.addPage();
         yPosition = 20;

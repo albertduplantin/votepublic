@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Settings, Film, Users, BarChart3, Calendar, QrCode, Database, Shield } from 'lucide-react';
-import { ROUTES } from '../utils/constants';
+
 
 export const AdminPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
 
   const adminFeatures = [
     {

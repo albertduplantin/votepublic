@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Calendar, Clock, Film, Plus, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Film, Plus, Trash2 } from 'lucide-react';
 import { Film as FilmType, Seance, CreateSeanceData } from '../../types';
 import { updateSeance } from '../../services/seanceService';
 import toast from 'react-hot-toast';

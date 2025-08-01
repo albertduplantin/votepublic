@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Star, Users, Calendar, Clock, TrendingUp, Award, Eye, Filter } from 'lucide-react';
+import { Award } from 'lucide-react';
 import { getAllSeances } from '../services/seanceService';
 import { getSeanceResults } from '../services/voteService';
 import { getFilmById, getFilmsByIds } from '../services/filmService';
-import { Seance, Film } from '../types';
-import { Dashboard, StatsCard, FilmCard } from '../components/ui';
+import { Seance } from '../types';
+import { Dashboard, FilmCard } from '../components/ui';
 import { useNotificationContext } from '../contexts/NotificationContext';
 
 interface FilmResult {
@@ -186,13 +186,7 @@ export const ResultsPage: React.FC = () => {
     });
   };
 
-  const getRatingColor = (rating: number): string => {
-    if (rating >= 4.5) return 'text-green-600';
-    if (rating >= 4.0) return 'text-blue-600';
-    if (rating >= 3.5) return 'text-yellow-600';
-    if (rating >= 3.0) return 'text-orange-600';
-    return 'text-red-600';
-  };
+
 
   const getPositionBadge = (position: number): JSX.Element => {
     let badgeClass = 'badge ';
@@ -338,7 +332,7 @@ export const ResultsPage: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedResults.map((film, index) => (
+              {sortedResults.map((film) => (
                 <div key={film.filmId} className="relative">
                   <FilmCard
                     id={film.filmId}

@@ -23,8 +23,8 @@ export const useNotifications = () => {
       id,
       type,
       title,
-      message,
-      duration
+      ...(message !== undefined && { message }),
+      ...(duration !== undefined && { duration })
     };
 
     setNotifications(prev => [...prev, newNotification]);

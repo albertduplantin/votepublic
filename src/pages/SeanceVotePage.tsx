@@ -1,24 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+
 import toast from 'react-hot-toast';
 import { Star, ArrowLeft, Send, Clock, Users } from 'lucide-react';
 import { getSeanceById } from '../services/seanceService';
 import { getSeanceResults } from '../services/voteService';
 import { getAllFilms } from '../services/filmService';
 import { addVote } from '../services/voteService';
-import { Seance, Film, VoteFormData } from '../types';
+import { Seance, Film } from '../types';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { ROUTES } from '../utils/constants';
-
-// Schéma de validation pour le vote
-const voteSchema = z.object({
-  note: z.number().min(1).max(5),
-  commentaire: z.string().max(500).optional(),
-});
 
 interface VoteData {
   filmId: string;
@@ -67,7 +59,9 @@ export const SeanceVotePage: React.FC = () => {
   const handleVote = (filmId: string, note: number, commentaire?: string) => {
     setVotes(prev => ({
       ...prev,
-      [filmId]: { filmId, note, commentaire },
+      [filmId]: commentaire !== undefined
+        ? { filmId, note, commentaire }
+        : { filmId, note }
     }));
   };
 
@@ -87,7 +81,7 @@ export const SeanceVotePage: React.FC = () => {
           filmId: vote.filmId,
           seanceId: seance.id,
           note: vote.note,
-          commentaire: vote.commentaire,
+          ...(vote.commentaire !== undefined ? { commentaire: vote.commentaire } : {})
         })
       );
       

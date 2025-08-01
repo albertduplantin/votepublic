@@ -20,7 +20,6 @@ interface FilmCardProps {
 }
 
 export const FilmCard: React.FC<FilmCardProps> = ({
-  id,
   title,
   director,
   duration,
