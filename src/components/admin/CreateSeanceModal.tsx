@@ -27,8 +27,8 @@ export const CreateSeanceModal: React.FC<CreateSeanceModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.films.length !== 5) {
-      toast.error('Une séance doit contenir exactement 5 films');
+    if (formData.films.length < 1) {
+      toast.error('Une séance doit contenir au moins 1 film');
       return;
     }
 
@@ -151,7 +151,7 @@ export const CreateSeanceModal: React.FC<CreateSeanceModalProps> = ({
             {/* Films sélectionnés */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Films sélectionnés ({formData.films.length}/5)
+                Films sélectionnés ({formData.films.length}/5) - Minimum 1, Maximum 5
               </label>
               
               {selectedFilms.length === 0 ? (
@@ -249,7 +249,7 @@ export const CreateSeanceModal: React.FC<CreateSeanceModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={loading || formData.films.length !== 5}
+              disabled={loading || formData.films.length < 1}
               className="btn-festival disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Création...' : 'Créer la séance'}

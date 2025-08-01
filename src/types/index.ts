@@ -48,7 +48,7 @@ export interface Seance {
   description?: string;
   date: Date;
   heure: string; // format "HH:MM"
-  films: string[]; // IDs des films (exactement 5 films)
+  films: string[]; // IDs des films (1 à 5 films)
   qrCodeUrl: string; // URL du QR code généré
   isActive: boolean; // si la séance est active pour le vote
   createdAt: Date;
@@ -134,7 +134,7 @@ export interface CreateSeanceData {
   description?: string;
   date: Date;
   heure: string;
-  films: string[]; // IDs des 5 films
+  films: string[]; // IDs des films (1 à 5 films)
 }
 
 // Types pour les réponses API

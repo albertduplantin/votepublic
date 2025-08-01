@@ -31,8 +31,8 @@ export const EditSeanceModal: React.FC<EditSeanceModalProps> = ({
     
     console.log('Soumission du formulaire:', formData);
     
-    if (formData.films.length !== 5) {
-      toast.error('Une séance doit contenir exactement 5 films');
+    if (formData.films.length < 1) {
+      toast.error('Une séance doit contenir au moins 1 film');
       return;
     }
 
@@ -160,7 +160,7 @@ export const EditSeanceModal: React.FC<EditSeanceModalProps> = ({
             {/* Films sélectionnés */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Films sélectionnés ({formData.films.length}/5)
+                Films sélectionnés ({formData.films.length}/5) - Minimum 1, Maximum 5
               </label>
               
               {selectedFilms.length === 0 ? (
@@ -258,7 +258,7 @@ export const EditSeanceModal: React.FC<EditSeanceModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={loading || formData.films.length !== 5}
+              disabled={loading || formData.films.length < 1}
               className="btn-festival disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Mise à jour...' : 'Mettre à jour'}

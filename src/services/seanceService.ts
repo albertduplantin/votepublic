@@ -23,9 +23,9 @@ const FILMS_COLLECTION = 'films';
  */
 export const createSeance = async (data: CreateSeanceData): Promise<Seance> => {
   try {
-    // Vérifier qu'il y a exactement 5 films
-    if (data.films.length !== 5) {
-      throw new Error('Une séance doit contenir exactement 5 films');
+    // Vérifier qu'il y a au moins 1 film et au plus 5
+    if (data.films.length < 1 || data.films.length > 5) {
+      throw new Error('Une séance doit contenir entre 1 et 5 films');
     }
 
     // Vérifier que tous les films existent
@@ -205,9 +205,9 @@ export const updateSeance = async (seanceId: string, data: Partial<CreateSeanceD
       updateData.date = data.date;
     }
 
-    // Si les films changent, vérifier qu'il y en a 5
-    if (data.films && data.films.length !== 5) {
-      throw new Error('Une séance doit contenir exactement 5 films');
+    // Si les films changent, vérifier qu'il y en a au moins 1 et au plus 5
+    if (data.films && (data.films.length < 1 || data.films.length > 5)) {
+      throw new Error('Une séance doit contenir entre 1 et 5 films');
     }
 
     console.log('Données de mise à jour:', updateData);
