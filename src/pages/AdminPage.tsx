@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Settings, Film, Users, BarChart3, Calendar, QrCode, Database, Shield, RefreshCw } from 'lucide-react';
+import { Settings, Film, Users, BarChart3, Calendar, QrCode, Database, Shield, RefreshCw, Plus } from 'lucide-react';
 import { Dashboard } from '../components/ui/Dashboard';
 import { DashboardStats } from '../components/ui/DashboardStats';
 import { useDashboard } from '../hooks/useDashboard';
+import { generateAllTestData } from '../services/testDataService';
+import { useNotifications } from '../hooks/useNotifications';
 
 export const AdminPage: React.FC = () => {
   const { stats, loading, refreshing, refreshStats } = useDashboard();
+  const { showSuccess, showError } = useNotifications();
+  const [generatingData, setGeneratingData] = useState(false);
 
   const adminFeatures = [
     {
@@ -101,6 +105,19 @@ export const AdminPage: React.FC = () => {
     return colorMap[color] || colorMap.gray;
   };
 
+  const handleGenerateTestData = async () => {
+    try {
+      setGeneratingData(true);
+      await generateAllTestData();
+      showSuccess('Données de test générées', 'Les films et séances de test ont été créés avec succès');
+      refreshStats(); // Actualiser les statistiques
+    } catch (error: any) {
+      showError('Erreur', error.message || 'Impossible de générer les données de test');
+    } finally {
+      setGeneratingData(false);
+    }
+  };
+
 
 
   return (
@@ -117,6 +134,14 @@ export const AdminPage: React.FC = () => {
                 </p>
               </div>
               <div className="flex items-center space-x-3">
+                <button
+                  onClick={handleGenerateTestData}
+                  disabled={generatingData}
+                  className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-colors disabled:opacity-50"
+                >
+                  <Plus className={`w-4 h-4 mr-2 ${generatingData ? 'animate-spin' : ''}`} />
+                  {generatingData ? 'Génération...' : 'Données de test'}
+                </button>
                 <button
                   onClick={refreshStats}
                   disabled={refreshing}

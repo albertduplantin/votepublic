@@ -426,9 +426,10 @@ export const getSeanceResults = async (seanceId: string): Promise<{
   try {
     console.log(`Recherche des votes pour la séance: ${seanceId}`);
     
-    // Récupérer tous les votes (sans filtre par séance pour l'instant)
+    // Récupérer les votes pour cette séance spécifique
     const votesQuery = query(
       collection(db, COLLECTIONS.VOTES),
+      where('seanceId', '==', seanceId),
       orderBy('createdAt', 'desc')
     );
 
@@ -444,20 +445,18 @@ export const getSeanceResults = async (seanceId: string): Promise<{
       } as Vote);
     });
 
-    console.log(`Total des votes trouvés: ${votes.length}`);
-    console.log('Votes:', votes.map(v => ({ filmId: v.filmId, seanceId: v.seanceId, note: v.note })));
+    console.log(`Total des votes trouvés pour la séance ${seanceId}: ${votes.length}`);
 
-    // Grouper les votes par film (pour cette séance)
+    // Grouper les votes par film
     const filmVotes: Record<string, Vote[]> = {};
     votes.forEach(vote => {
-      // Inclure tous les votes pour les films de cette séance, même sans seanceId
       if (!filmVotes[vote.filmId]) {
         filmVotes[vote.filmId] = [];
       }
       filmVotes[vote.filmId].push(vote);
     });
 
-    console.log(`Films avec votes: ${Object.keys(filmVotes).length}`);
+    console.log(`Films avec votes dans la séance: ${Object.keys(filmVotes).length}`);
 
     // Calculer les statistiques pour chaque film
     const films = Object.entries(filmVotes).map(([filmId, filmVotes]) => {
