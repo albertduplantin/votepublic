@@ -165,7 +165,7 @@ export const ResultsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showError, showSuccess]);
 
   // Charger les séances et résultats
   useEffect(() => {

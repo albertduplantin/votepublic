@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Edit, Trash2, ArrowLeft, Search, Filter } from 'lucide-react';
 import { getAllFilms, deleteFilm } from '../services/filmService';
@@ -12,7 +12,7 @@ export const AdminFilmsPage: React.FC = () => {
   const [selectedGenre, setSelectedGenre] = useState<string>('');
   const { showSuccess, showError } = useNotifications();
 
-  const loadFilms = async () => {
+  const loadFilms = useCallback(async () => {
     try {
       setLoading(true);
       const allFilms = await getAllFilms();
@@ -23,7 +23,7 @@ export const AdminFilmsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
 
   useEffect(() => {
     loadFilms();

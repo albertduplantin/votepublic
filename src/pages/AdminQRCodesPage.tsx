@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, QrCode, Download, Printer, Eye } from 'lucide-react';
 import { getAllSeances } from '../services/seanceService';
@@ -10,7 +10,7 @@ export const AdminQRCodesPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { showSuccess, showError } = useNotifications();
 
-  const loadSeances = async () => {
+  const loadSeances = useCallback(async () => {
     try {
       setLoading(true);
       const allSeances = await getAllSeances();
@@ -21,7 +21,7 @@ export const AdminQRCodesPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
 
   useEffect(() => {
     loadSeances();
