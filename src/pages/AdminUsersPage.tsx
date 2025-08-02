@@ -16,7 +16,7 @@ interface User {
 export const AdminUsersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const { showSuccess, showError } = useNotifications();
+  const { showSuccess } = useNotifications();
 
   // Données fictives pour la démonstration
   useEffect(() => {
