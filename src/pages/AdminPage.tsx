@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Settings, Film, Users, BarChart3, Calendar, QrCode, Database, Shield } from 'lucide-react';
-
+import { Settings, Film, Users, BarChart3, Calendar, QrCode, Database, Shield, RefreshCw } from 'lucide-react';
+import { Dashboard } from '../components/ui/Dashboard';
+import { DashboardStats } from '../components/ui/DashboardStats';
+import { useDashboard } from '../hooks/useDashboard';
 
 export const AdminPage: React.FC = () => {
+  const { stats, loading, refreshing, refreshStats } = useDashboard();
 
   const adminFeatures = [
     {
@@ -98,6 +101,8 @@ export const AdminPage: React.FC = () => {
     return colorMap[color] || colorMap.gray;
   };
 
+
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* En-tête */}
@@ -112,6 +117,14 @@ export const AdminPage: React.FC = () => {
                 </p>
               </div>
               <div className="flex items-center space-x-3">
+                <button
+                  onClick={refreshStats}
+                  disabled={refreshing}
+                  className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-primary-100 text-primary-700 hover:bg-primary-200 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                  {refreshing ? 'Actualisation...' : 'Actualiser'}
+                </button>
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success-100 text-success-800">
                   Admin
                 </span>
@@ -123,56 +136,53 @@ export const AdminPage: React.FC = () => {
 
       {/* Contenu principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Statistiques rapides */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-primary-100 rounded-lg">
-                <Calendar className="w-6 h-6 text-primary" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Séances</p>
-                <p className="text-2xl font-bold text-gray-900">0</p>
+        {/* Tableau de bord avec statistiques */}
+        {loading ? (
+          <div className="mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-sm p-6 animate-pulse">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                    <div className="ml-4">
+                      <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
+                      <div className="h-8 bg-gray-200 rounded w-12"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : stats ? (
+          <div className="mb-8">
+            <Dashboard 
+              stats={{
+                totalVotes: stats.totalVotes,
+                totalFilms: stats.totalFilms,
+                averageRating: stats.averageRating,
+                activeSeances: stats.activeSeances,
+                topFilm: stats.topFilm ? {
+                  title: stats.topFilm.title,
+                  rating: stats.topFilm.rating,
+                  votes: stats.topFilm.votes
+                } : undefined,
+                ...(stats.recentActivity && { recentActivity: stats.recentActivity })
+              }}
+              loading={false}
+            />
+          </div>
+        ) : (
+          <div className="mb-8">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="text-center text-gray-500">
+                <p>Aucune donnée disponible</p>
               </div>
             </div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-secondary-100 rounded-lg">
-                <Film className="w-6 h-6 text-secondary" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Films</p>
-                <p className="text-2xl font-bold text-gray-900">0</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-success-100 rounded-lg">
-                <BarChart3 className="w-6 h-6 text-success" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Votes</p>
-                <p className="text-2xl font-bold text-gray-900">0</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-info-100 rounded-lg">
-                <Users className="w-6 h-6 text-info" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Utilisateurs</p>
-                <p className="text-2xl font-bold text-gray-900">0</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
+
+        {/* Statistiques détaillées */}
+        {stats && <DashboardStats stats={stats} className="mb-8" />}
 
         {/* Fonctionnalités d'administration */}
         <div className="bg-white rounded-lg shadow-sm">

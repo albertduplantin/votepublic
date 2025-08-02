@@ -14,6 +14,13 @@ const VotePage = React.lazy(() => import('./pages/VotePage').then(module => ({ d
 const FilmsPage = React.lazy(() => import('./pages/FilmsPage').then(module => ({ default: module.FilmsPage })));
 const AdminPage = React.lazy(() => import('./pages/AdminPage').then(module => ({ default: module.AdminPage })));
 const AdminSeancesPage = React.lazy(() => import('./pages/AdminSeancesPage').then(module => ({ default: module.AdminSeancesPage })));
+const AdminFilmsPage = React.lazy(() => import('./pages/AdminFilmsPage').then(module => ({ default: module.AdminFilmsPage })));
+const AdminResultsPage = React.lazy(() => import('./pages/AdminResultsPage').then(module => ({ default: module.AdminResultsPage })));
+const AdminUsersPage = React.lazy(() => import('./pages/AdminUsersPage').then(module => ({ default: module.AdminUsersPage })));
+const AdminQRCodesPage = React.lazy(() => import('./pages/AdminQRCodesPage').then(module => ({ default: module.AdminQRCodesPage })));
+const AdminDatabasePage = React.lazy(() => import('./pages/AdminDatabasePage').then(module => ({ default: module.AdminDatabasePage })));
+const AdminSecurityPage = React.lazy(() => import('./pages/AdminSecurityPage').then(module => ({ default: module.AdminSecurityPage })));
+const AdminSettingsPage = React.lazy(() => import('./pages/AdminSettingsPage').then(module => ({ default: module.AdminSettingsPage })));
 const LoginPage = React.lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })));
 const RegisterPage = React.lazy(() => import('./pages/RegisterPage').then(module => ({ default: module.RegisterPage })));
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage').then(module => ({ default: module.ProfilePage })));
@@ -101,6 +108,62 @@ function App() {
                     element={
                       <PrivateRoute requireAdmin>
                         <AdminSeancesPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/films"
+                    element={
+                      <PrivateRoute requireAdmin>
+                        <AdminFilmsPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/results"
+                    element={
+                      <PrivateRoute requireAdmin>
+                        <AdminResultsPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/users"
+                    element={
+                      <PrivateRoute requireAdmin>
+                        <AdminUsersPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/qr-codes"
+                    element={
+                      <PrivateRoute requireAdmin>
+                        <AdminQRCodesPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/database"
+                    element={
+                      <PrivateRoute requireAdmin>
+                        <AdminDatabasePage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/security"
+                    element={
+                      <PrivateRoute requireAdmin>
+                        <AdminSecurityPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/settings"
+                    element={
+                      <PrivateRoute requireAdmin>
+                        <AdminSettingsPage />
                       </PrivateRoute>
                     }
                   />
