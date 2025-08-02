@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, QrCode, Download, Print, Eye } from 'lucide-react';
+import { ArrowLeft, QrCode, Download, Printer, Eye } from 'lucide-react';
 import { getAllSeances } from '../services/seanceService';
 import { useNotifications } from '../hooks/useNotifications';
 import { Seance } from '../types';
@@ -178,7 +178,7 @@ export const AdminQRCodesPage: React.FC = () => {
                         onClick={() => handlePrintQR(seance.id, seance.nom)}
                         className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                       >
-                        <Print className="w-3 h-3 mr-1" />
+                        <Printer className="w-3 h-3 mr-1" />
                         Imprimer
                       </button>
                       
