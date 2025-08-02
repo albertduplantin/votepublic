@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Settings, Save, Globe, Bell, Palette, Database } from 'lucide-react';
+import { ArrowLeft, Settings, Save, Globe, Palette, Database } from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications';
 
 export const AdminSettingsPage: React.FC = () => {
@@ -15,7 +15,7 @@ export const AdminSettingsPage: React.FC = () => {
     language: 'fr',
     theme: 'light'
   });
-  const { showSuccess, showError } = useNotifications();
+  const { showSuccess } = useNotifications();
 
   const handleSettingChange = (setting: string, value: any) => {
     setSettings(prev => ({ ...prev, [setting]: value }));
