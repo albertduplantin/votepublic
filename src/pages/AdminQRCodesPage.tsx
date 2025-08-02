@@ -32,12 +32,12 @@ export const AdminQRCodesPage: React.FC = () => {
     return `${baseUrl}/votepublic/seance/${seanceId}`;
   };
 
-  const handleDownloadQR = (seanceId: string, seanceName: string) => {
+  const handleDownloadQR = (_seanceId: string, seanceName: string) => {
     // Simulation de téléchargement de QR code
     showSuccess('QR Code téléchargé', `Le QR code pour "${seanceName}" a été téléchargé`);
   };
 
-  const handlePrintQR = (seanceId: string, seanceName: string) => {
+  const handlePrintQR = (_seanceId: string, seanceName: string) => {
     // Simulation d'impression de QR code
     showSuccess('Impression lancée', `Impression du QR code pour "${seanceName}"`);
   };
