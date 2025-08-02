@@ -15,7 +15,7 @@ export const AdminSettingsPage: React.FC = () => {
     language: 'fr',
     theme: 'light'
   });
-  const { showSuccess } = useNotifications();
+  const { showSuccess, showError } = useNotifications();
 
   const handleSettingChange = (setting: string, value: any) => {
     setSettings(prev => ({ ...prev, [setting]: value }));
