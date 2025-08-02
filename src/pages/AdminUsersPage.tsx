@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, UserPlus, Shield, User, Mail, Calendar } from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications';
 
-interface User {
+interface UserData {
   id: string;
   email: string;
   displayName?: string;
@@ -14,13 +14,13 @@ interface User {
 }
 
 export const AdminUsersPage: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const { showSuccess } = useNotifications();
 
   // Données fictives pour la démonstration
   useEffect(() => {
-    const mockUsers: User[] = [
+    const mockUsers: UserData[] = [
       {
         id: '1',
         email: 'admin@festival.com',

@@ -25,7 +25,7 @@ export const AdminQRCodesPage: React.FC = () => {
 
   useEffect(() => {
     loadSeances();
-  }, []);
+  }, [loadSeances]);
 
   const generateQRCodeUrl = (seanceId: string) => {
     const baseUrl = window.location.origin;

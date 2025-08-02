@@ -38,7 +38,7 @@ export const Notification: React.FC<NotificationProps> = ({
       clearTimeout(enterTimer);
       clearTimeout(closeTimer);
     };
-  }, [duration]);
+  }, [duration, onClose]);
 
   const handleClose = () => {
     setIsLeaving(true);

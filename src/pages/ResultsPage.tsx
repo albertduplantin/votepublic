@@ -38,7 +38,7 @@ export const ResultsPage: React.FC = () => {
   // Charger les séances et résultats
   useEffect(() => {
     loadResults();
-  }, []);
+  }, [loadResults]);
 
   const loadResults = async () => {
     try {

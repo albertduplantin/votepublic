@@ -82,7 +82,7 @@ export const SeanceVotePage: React.FC = () => {
     };
 
     loadSeanceData();
-  }, [seanceId, navigate]);
+  }, [seanceId, navigate, user]);
 
   // Gérer le vote pour un film
   const handleVote = (filmId: string, note: number, commentaire?: string) => {

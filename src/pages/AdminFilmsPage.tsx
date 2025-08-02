@@ -27,7 +27,7 @@ export const AdminFilmsPage: React.FC = () => {
 
   useEffect(() => {
     loadFilms();
-  }, []);
+  }, [loadFilms]);
 
   const handleDeleteFilm = async (filmId: string, filmTitle: string) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer le film "${filmTitle}" ?`)) {
