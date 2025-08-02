@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Settings, Save, Globe, Palette, Database } from 'lucide-react';
+import { ArrowLeft, Settings, Save, Globe, Database } from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications';
 
 export const AdminSettingsPage: React.FC = () => {
