@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Award } from 'lucide-react';
 import { getAllSeances } from '../services/seanceService';
 import { getAllVotes } from '../services/voteService';
@@ -35,12 +35,7 @@ export const ResultsPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<'votes' | 'rating' | 'name'>('rating');
   const { showError, showSuccess } = useNotificationContext();
 
-  // Charger les séances et résultats
-  useEffect(() => {
-    loadResults();
-  }, [loadResults]);
-
-  const loadResults = async () => {
+  const loadResults = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -170,7 +165,12 @@ export const ResultsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Charger les séances et résultats
+  useEffect(() => {
+    loadResults();
+  }, [loadResults]);
 
   // Calculer les statistiques globales
   const getGlobalStats = () => {
