@@ -12,7 +12,7 @@ export const AdminSecurityPage: React.FC = () => {
     passwordExpiry: 90,
     ipWhitelist: false
   });
-  const { showSuccess, showError } = useNotifications();
+  const { showSuccess } = useNotifications();
 
   const handleSettingChange = (setting: string, value: any) => {
     setSecuritySettings(prev => ({ ...prev, [setting]: value }));
